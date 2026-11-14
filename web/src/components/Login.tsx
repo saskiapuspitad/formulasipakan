@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Tombol, BannerPeringatan } from "../ui";
+import { Tombol, BannerPeringatan, LogoAplikasi } from "../ui";
 import { periksaKesehatanPenyimpanan } from "../storage";
 import { masuk, daftar } from "../sesi";
 import type { Pengguna } from "../api";
@@ -64,11 +64,7 @@ export function Login({ onMasuk }: { onMasuk: (p: Pengguna) => void }) {
     <div className="min-h-full grid place-items-center p-5 bg-slate-50" style={{ paddingTop: "env(safe-area-inset-top, 16px)" }}>
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-700 text-white shadow-md shadow-emerald-700/20 mb-3">
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
-            </svg>
-          </div>
+          <LogoAplikasi className="w-16 h-16 mx-auto mb-3 drop-shadow-md" />
           <h1 className="text-xl font-bold tracking-tight text-slate-800">Sistem Formulasi Pakan</h1>
           <p className="text-xs font-medium text-emerald-800">Ternak Unggas</p>
           <p className="text-[11px] font-medium text-slate-600 mt-1.5 leading-snug">Precision Livestock Farming Research Group</p>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" fill="#047857"/>
+  <g transform="translate(32 32) scale(0.8) translate(-32 -32)">
+  <g transform="translate(-3 -1)">
+    <path d="M19 33 C13 29 11 21 14 14 C17 19 20 22 25 24 C21 18 22 13 25 10 C26 16 29 20 33 22 Z" fill="#ffffff"/>
+    <path d="M17 32 C17 24 24 21 31 22 C33 17 36 13.5 41 13.5 C46 13.5 49 17.5 49 22 L54.5 24.5 L49 27 C49.5 33 47 39 42 43 C38 46.5 33 47.5 28.5 47 C21.5 46 17 40 17 32 Z" fill="#ffffff"/>
+    <path d="M36.5 14.5 C36 11 38.5 9.5 40 11.5 C40.5 8.5 43.5 8.5 44 11 C45.5 9.5 48 10.5 47 13.5 C44 13 40 13 36.5 14.5 Z" fill="#f59e0b"/>
+    <path d="M48.5 27 C49.5 29.5 48.5 31.5 46.5 31 C46 29.5 46.5 28 48.5 27 Z" fill="#f59e0b"/>
+    <circle cx="43" cy="20" r="1.8" fill="#047857"/>
+    <path d="M24 33 C27 29 34 29 38 32 C35 38 28 40 24 37 Z" fill="#047857" opacity="0.18"/>
+    <path d="M30 46.5 L29 53 M36 46 L37 53" stroke="#ffffff" stroke-width="2.4" stroke-linecap="round"/>
+  </g>
+  <!-- wadah pakan berisi butiran -->
+  <ellipse cx="49" cy="46.5" rx="2.1" ry="1.5" fill="#fde68a"/>
+  <ellipse cx="45.2" cy="47.6" rx="2.1" ry="1.5" fill="#fde68a"/>
+  <ellipse cx="52.8" cy="47.6" rx="2.1" ry="1.5" fill="#fde68a"/>
+  <ellipse cx="49" cy="44.2" rx="2.1" ry="1.5" fill="#fde68a"/>
+  <path d="M40.5 48.5 H57.5 C57 54 53.5 56.5 49 56.5 C44.5 56.5 41 54 40.5 48.5 Z" fill="#f59e0b"/>
+  <path d="M42.5 51.5 H55.5" stroke="#b45309" stroke-opacity="0.35" stroke-width="1.2" stroke-linecap="round"/>
+  </g>
+</svg>

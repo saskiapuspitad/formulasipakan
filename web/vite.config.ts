@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["v1_master_data.json"],
+      includeAssets: ["v1_master_data.json", "logo.svg", "apple-touch-icon.png"],
       manifest: {
         name: "Sistem Formulasi Pakan — Ternak Unggas",
         short_name: "Formulasi Pakan",
@@ -21,11 +21,12 @@ export default defineConfig({
         start_url: "./",
         icons: [
           { src: "icon-192.png", sizes: "192x192", type: "image/png" },
-          { src: "icon-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }
+          { src: "icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: "icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }
         ]
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,json,png,wasm}"],
+        globPatterns: ["**/*.{js,css,html,json,png,svg,wasm}"],
         // Permintaan API selalu ke server (tidak di-cache service worker)
         navigateFallbackDenylist: [/^\/api\//],
       }

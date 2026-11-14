@@ -23,6 +23,7 @@ import {
   BannerPeringatan,
   IkonUnduh,
   IkonUnggah,
+  LogoAplikasi,
 } from "./ui";
 import { Login } from "./components/Login";
 import { TambahBahanModal } from "./components/TambahBahanModal";
@@ -682,9 +683,11 @@ export default function App() {
     >
       {/* HEADER UTAMA */}
       <header className="py-3.5 flex items-center justify-between gap-2 border-b border-slate-200/80 mb-4 print:hidden">
-        <div className="min-w-0">
+        <div className="min-w-0 flex items-start gap-2.5">
+          <LogoAplikasi className="w-8 h-8 shrink-0 mt-0.5" />
+          <div className="min-w-0">
           <div className="flex items-center gap-x-2 gap-y-0.5 flex-wrap">
-            <h1 className="text-base font-bold text-slate-900 tracking-tight leading-tight">Sistem Formulasi Pakan</h1>
+            <h1 className="text-[15px] font-bold text-slate-900 tracking-tight leading-tight">Sistem Formulasi Pakan</h1>
             <span
               className="text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded"
               title="Precision Livestock Farming Research Group, Faculty of Animal Science and Technology, Universitas Brawijaya"
@@ -723,6 +726,7 @@ export default function App() {
               <span className="text-emerald-700 font-medium">Tersinkron</span>
             )}
           </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
@@ -730,7 +734,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => bukaLangkah("admin")}
-            className="text-xs bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg px-2.5 py-1.5 font-semibold transition cursor-pointer shadow-2xs"
+            className="text-xs bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg px-2.5 py-1.5 font-semibold transition cursor-pointer shadow-2xs shrink-0"
           >
             Admin
           </button>
@@ -739,12 +743,16 @@ export default function App() {
         <button
           type="button"
           onClick={() => bukaLangkah("tersimpan")}
+          aria-label={`Tersimpan${formulas.length ? ` (${formulas.length})` : ""}`}
+          title="Formula tersimpan"
           className="text-xs bg-white hover:bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-semibold text-slate-700 transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
         >
           <svg className="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
           </svg>
-          <span>Tersimpan{formulas.length ? ` (${formulas.length})` : ""}</span>
+          {/* Admin di layar sempit: cukup ikon + jumlah agar judul tidak terpecah */}
+          <span className={user.peran === "admin" ? "hidden min-[400px]:inline" : ""}>Tersimpan</span>
+          {formulas.length > 0 && <span>{user.peran === "admin" ? <span className="min-[400px]:hidden">{formulas.length}</span> : null}<span className={user.peran === "admin" ? "hidden min-[400px]:inline" : ""}>({formulas.length})</span></span>}
         </button>
         </div>
       </header>
