@@ -1,0 +1,66 @@
+# =============================================================================
+# Sistem Formulasi Pakan — Docker Compose (VPS bersama dengan aplikasi lain)
+#
+# • Nama layanan & kontainer UNIK ("formulasipakan-…") agar tidak tertukar
+#   dengan "app"/"db" milik aplikasi lain di jaringan proxy bersama.
+# • Database hanya di jaringan internal; tidak ada port yang dibuka ke host.
+# • Web bergabung ke jaringan proxy (mis. brahma-ps_default) supaya Caddy
+#   dapat meneruskan formulasipakan.id ke formulasipakan-web:3000.
+#
+# Dijalankan oleh pasang-docker.sh:
+#   docker compose -p formulasipakan -f docker-compose.yml --env-file /opt/formulasipakan/.env up -d
+# =============================================================================
+name: formulasipakan
+
+services:
+  formulasipakan-db:
+    image: postgres:16-alpine
+    container_name: formulasipakan-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: formulasipakan
+      POSTGRES_USER: formulasipakan
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD belum diisi}
+    volumes:
+      - formulasipakan_db:/var/lib/postgresql/data
+    networks:
+      - formulasipakan_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U formulasipakan -d formulasipakan"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    labels:
+      id.formulasipakan.milik: "formulasipakan"
+
+  formulasipakan-web:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: formulasipakan-web:latest
+    container_name: formulasipakan-web
+    restart: unless-stopped
+    depends_on:
+      formulasipakan-db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://formulasipakan:${DB_PASSWORD}@formulasipakan-db:5432/formulasipakan
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET belum diisi}
+      COOKIE_SECURE: "true"
+      IZINKAN_DAFTAR: ${IZINKAN_DAFTAR:-true}
+    networks:
+      - formulasipakan_internal
+      - proxy
+    labels:
+      id.formulasipakan.milik: "formulasipakan"
+
+networks:
+  formulasipakan_internal:
+    name: formulasipakan_internal
+  proxy:
+    name: ${PROXY_NETWORK:?PROXY_NETWORK belum diisi}
+    external: true
+
+volumes:
+  formulasipakan_db:
+    name: formulasipakan_db

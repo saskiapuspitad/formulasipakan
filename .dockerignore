@@ -1,0 +1,12 @@
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+!server/.env.example
+**/pgdata*
+**/*.tsbuildinfo
+**/coverage
+.git
+_to_delete
+server/test
+web/tests

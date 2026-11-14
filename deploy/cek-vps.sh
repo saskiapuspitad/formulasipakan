@@ -62,7 +62,7 @@ if [ -n "$P80$P443" ]; then
     MODE_WEB="nginx-ada"
   else
     MODE_WEB="lain"
-    MASALAH+=("Port 80/443 dipegang '${P80:-$P443}', bukan Nginx sistem. Skrip tidak akan mengubahnya — perlu cara pemasangan lain (kirim hasil ini ke pengembang).")
+    MASALAH+=("Port 80/443 dipegang '${P80:-$P443}', bukan Nginx sistem. Skrip ini tidak akan mengubahnya. Bila pintu depannya kontainer Caddy, gunakan mode Docker: ./deploy/kirim-ke-vps.sh --docker --cek root@IP-VPS ${DOMAIN}")
     MODE_WEB="lain"
   fi
 fi

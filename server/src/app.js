@@ -56,7 +56,21 @@ export function buatApp(ctx) {
   // Opsional: layani hasil build frontend langsung dari Node (tanpa Nginx)
   if (ctx.staticDir && existsSync(ctx.staticDir)) {
     const dir = resolve(ctx.staticDir);
-    app.use(express.static(dir, { index: false, maxAge: "1h" }));
+    app.use(
+      express.static(dir, {
+        index: false,
+        setHeaders(res, berkas) {
+          const nama = berkas.split(/[\\/]/).pop();
+          if (["sw.js", "registerSW.js", "manifest.webmanifest", "index.html"].includes(nama)) {
+            res.set("Cache-Control", "no-cache"); // pembaruan aplikasi cepat sampai ke HP
+          } else if (berkas.includes("/assets/")) {
+            res.set("Cache-Control", "public, max-age=31536000, immutable"); // nama berkas unik per build
+          } else {
+            res.set("Cache-Control", "public, max-age=3600");
+          }
+        },
+      })
+    );
     app.get(/^(?!\/api\/).*/, (_req, res) => {
       res.set("Cache-Control", "no-cache");
       res.sendFile(join(dir, "index.html"));

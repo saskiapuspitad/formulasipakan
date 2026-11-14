@@ -1,5 +1,7 @@
 # Panduan Deploy Sistem Formulasi Pakan ke VPS Hostinger
 
+> **VPS Brahma (187.77.137.98) memakai Caddy di Docker sebagai pintu depan → ikuti [`deploy/docker/PANDUAN-DOCKER.md`](docker/PANDUAN-DOCKER.md).** Panduan di bawah ini untuk VPS yang memakai Nginx sistem atau masih kosong.
+
 Domain: **formulasipakan.id** · VPS yang sama dengan **Brahma Farm, BrahmaPS, dan Brahma Export**.
 
 Semua perintah diketik di **Terminal** Mac. Waktu yang dibutuhkan: ±20–30 menit untuk pertama kali.

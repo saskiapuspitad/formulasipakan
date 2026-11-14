@@ -44,7 +44,16 @@ cd web && npm test       # 3 uji alur aplikasi (butuh server/node_modules terpas
 cd web && npm run build  # type-check + build produksi
 ```
 
-## Deploy ke VPS (Hostinger)
+## Deploy ke VPS Brahma (Docker + Caddy) — **yang dipakai sekarang**
+
+Lihat **deploy/docker/PANDUAN-DOCKER.md**. Singkatnya:
+
+```bash
+./deploy/kirim-ke-vps.sh --docker --cek root@187.77.137.98 formulasipakan.id   # 1. periksa (hanya membaca)
+./deploy/kirim-ke-vps.sh --docker root@187.77.137.98 formulasipakan.id         # 2. pasang / perbarui
+```
+
+## Deploy ke VPS dengan Nginx sistem (alternatif)
 
 Lihat **deploy/PANDUAN-DEPLOY-VPS.md**. Singkatnya:
 
