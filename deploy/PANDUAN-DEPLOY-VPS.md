@@ -13,11 +13,22 @@ Semua perintah diketik di **Terminal** Mac. Waktu yang dibutuhkan: ±20–30 men
 | Nginx | Menambah **satu berkas** khusus `formulasipakan.id` | Tidak mengubah, menghapus, atau menimpa situs lain (termasuk `default`) |
 | Paket sistem | Memasang paket yang **belum ada** saja (`apt --no-upgrade`) | Tidak memperbarui Nginx, PostgreSQL, atau paket lain yang sudah terpasang |
 | Node.js | Memakai Node.js 22 **terpisah** di `/opt/formulasipakan/node` | Tidak mengubah Node.js sistem yang dipakai aplikasi Brahma |
-| Port | API di `127.0.0.1`, port kosong pertama dari **3310–3399** | Tidak memakai port 3000/3001/dll. yang sering dipakai aplikasi lain |
+| Port | API di `127.0.0.1`, port kosong pertama dari **3310–3399** — "kosong" berarti tidak dipakai **dan** tidak dipesan aplikasi lain (lihat di bawah) | Tidak memakai port 3000/3001/dll. yang sering dipakai aplikasi lain; tidak pernah merebut port yang sudah dipakai |
 | Database | Database & pengguna PostgreSQL sendiri: `formulasipakan` | Tidak menyentuh database Brahma; pengguna `formulasipakan` tidak bisa membacanya |
 | HTTPS | Sertifikat **hanya** untuk `formulasipakan.id` (dan `www`) | Tidak mengubah sertifikat domain lain |
 | Folder | `/opt/formulasipakan`, `/var/www/formulasipakan`, `/var/backups/formulasipakan` | — |
 | Layanan | `formulasipakan-api` | Tidak menghentikan atau me-restart layanan lain (Nginx hanya *reload* halus) |
+
+Pengecekan port — sebuah port dianggap terpakai bila muncul di salah satu sumber ini, **termasuk milik aplikasi yang sedang mati/di-restart**:
+
+1. Program yang sedang berjalan (`ss`)
+2. Kontainer Docker, termasuk yang sedang berhenti
+3. Tujuan `proxy_pass` di konfigurasi Nginx situs lain
+4. Layanan systemd (`PORT=`, `--port`, `EnvironmentFile`)
+5. Daftar proses PM2 tersimpan (root & semua pengguna)
+6. Berkas `.env` dan `docker-compose` aplikasi lain di `/opt`, `/srv`, `/var/www`, `/home`, `/root`
+
+Hasil pemeriksaan menampilkan tabel **"Port yang sudah dipakai/dipesan aplikasi lain"** beserta pemiliknya. Setiap kali pembaruan, port API dicek lagi: bila sudah direbut program lain, pemasangan berhenti dengan pesan jelas dan program itu **tidak** dihentikan. Pemeriksaan kesehatan juga memastikan yang menjawab benar-benar aplikasi ini (`"aplikasi":"formulasipakan"`), bukan program lain di port yang sama.
 
 Pengaman tambahan:
 - Skrip **memeriksa VPS dulu**. Bila ada yang tidak cocok (panel kontrol, port 80 dipegang selain Nginx, domain sudah dipakai berkas lain, konfigurasi Nginx yang ada sudah error), pemasangan **dibatalkan sebelum mengubah apa pun**.
@@ -131,6 +142,7 @@ Data di database tetap aman. Hanya `formulasipakan-api` yang di-restart; aplikas
 | Bisa login tapi langsung keluar lagi | Situs dibuka lewat `http://` sebelum HTTPS terpasang. Ulangi langkah 3 setelah DNS siap |
 | HTTPS gagal | DNS belum mengarah. Tunggu, lalu ulangi langkah 3 |
 | `API belum merespons` | `journalctl -u formulasipakan-api -n 50 --no-pager` |
+| `Port … sedang dipakai program lain` | Aplikasi lain memakai port API. Ganti `PORT` di `/opt/formulasipakan/server/.env` dan `proxy_pass` di berkas Nginx `formulasipakan.id` ke port kosong (lihat tabel port di hasil pemeriksaan), lalu ulangi pembaruan |
 | Terus diminta kata sandi | `ssh-copy-id root@IP-VPS` |
 
 ---

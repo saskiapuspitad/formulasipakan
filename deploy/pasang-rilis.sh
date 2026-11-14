@@ -42,6 +42,16 @@ cd "$APP/server"
 runuser -u "$NAMA" -- env HOME="$APP" PATH="$NODE_BIN:/usr/bin:/bin" npm ci --omit=dev --no-audit --no-fund --loglevel=error
 
 PORT_API="$(grep -E '^PORT=' "$ENV" | cut -d= -f2)"
+
+# Pastikan port API tidak sedang dipegang program lain (mis. aplikasi lain dipasang belakangan)
+PID_PORT="$(ss -ltnpH "sport = :${PORT_API}" 2>/dev/null | grep -oE 'pid=[0-9]+' | head -1 | cut -d= -f2 || true)"
+if [ -n "$PID_PORT" ] && [ "$(ps -o user= -p "$PID_PORT" 2>/dev/null | tr -d ' ')" != "$NAMA" ]; then
+  echo "!! Port ${PORT_API} sedang dipakai program lain: $(ps -o user=,comm= -p "$PID_PORT" 2>/dev/null)."
+  echo "   Aplikasi lain TIDAK dihentikan. Pilih port lain: ubah PORT di ${ENV}"
+  echo "   dan proxy_pass di konfigurasi Nginx situs ini, lalu jalankan ulang."
+  exit 1
+fi
+
 echo "==> Menjalankan ulang layanan ${NAMA}-api (port ${PORT_API})…"
 if [ -d /run/systemd/system ]; then
   systemctl restart "${NAMA}-api"
@@ -49,7 +59,8 @@ else
   echo "   (tanpa systemd: jalankan manual)"
 fi
 for i in $(seq 1 20); do
-  if curl -fsS "http://127.0.0.1:${PORT_API}/api/sehat" >/dev/null 2>&1; then
+  # Pastikan yang menjawab benar-benar aplikasi ini, bukan program lain di port yang sama
+  if curl -fsS "http://127.0.0.1:${PORT_API}/api/sehat" 2>/dev/null | grep -q '"aplikasi":"formulasipakan"'; then
     echo "API sehat ✔"
     break
   fi

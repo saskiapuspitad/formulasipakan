@@ -15,6 +15,7 @@ async function daftar(agen, email, nama = "Peternak Uji", sandi = "sandiRahasia1
 test("kesehatan & data master awal (31 bahan, 23 periode, harga acuan)", async () => {
   const sehat = await request(s.app).get("/api/sehat");
   assert.equal(sehat.status, 200);
+  assert.equal(sehat.body.aplikasi, "formulasipakan");
   const r = await request(s.app).get("/api/master");
   assert.equal(r.status, 200);
   assert.equal(r.body.data.bahan.length, 31);

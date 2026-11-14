@@ -34,7 +34,7 @@ export function buatApp(ctx) {
 
   api.get("/sehat", async (_req, res) => {
     await ctx.pool.query("SELECT 1");
-    res.json({ ok: true, waktu: new Date().toISOString() });
+    res.json({ ok: true, aplikasi: "formulasipakan", waktu: new Date().toISOString() });
   });
 
   // Data master (publik: tidak memuat data pribadi)

@@ -51,6 +51,9 @@ baris "Panel terdeteksi" "${PANEL:-tidak ada}"
 judul "Web server (port 80 & 443)"
 P80="$(pemilik_port 80)"
 P443="$(pemilik_port 443)"
+kontainer_port() { command -v docker >/dev/null 2>&1 && docker ps --filter "publish=$1" --format '{{.Names}} ({{.Image}})' 2>/dev/null | head -1; }
+[ "$P80" = "docker-proxy" ] && P80="docker-proxy: $(kontainer_port 80)"
+[ "$P443" = "docker-proxy" ] && P443="docker-proxy: $(kontainer_port 443)"
 baris "Port 80 dipakai oleh" "${P80:-kosong}"
 baris "Port 443 dipakai oleh" "${P443:-kosong}"
 MODE_WEB="nginx-baru"
@@ -60,6 +63,7 @@ if [ -n "$P80$P443" ]; then
   else
     MODE_WEB="lain"
     MASALAH+=("Port 80/443 dipegang '${P80:-$P443}', bukan Nginx sistem. Skrip tidak akan mengubahnya — perlu cara pemasangan lain (kirim hasil ini ke pengembang).")
+    MODE_WEB="lain"
   fi
 fi
 case "$MODE_WEB" in
@@ -119,20 +123,109 @@ baris "Node.js untuk aplikasi ini" "terpisah di /opt/${NAMA}/node"
 if command -v pm2 >/dev/null 2>&1; then
   baris "PM2 (root)" "$(pm2 jlist 2>/dev/null | grep -o '"name":"[^"]*"' | sed 's/"name":"//; s/"//' | tr '\n' ' ' || echo '-')"
 fi
-PORTS_TCP="$(ss -ltnH 2>/dev/null | awk '{print $4}' | sed -E 's/.*:([0-9]+)$/\1/' | sort -n | uniq | tr '\n' ' ')"
-baris "Port TCP terpakai" "$PORTS_TCP"
+
+# ---------------------------------------------------------------------------
+# Daftar SEMUA port yang sudah dipesan aplikasi lain — bukan hanya yang sedang
+# berjalan, tapi juga milik aplikasi yang sedang mati/di-restart:
+#   1) program yang sedang mendengarkan (TCP)      2) kontainer Docker (termasuk yang berhenti)
+#   3) tujuan proxy_pass di Nginx                  4) layanan systemd (PORT=, --port)
+#   5) daftar proses PM2 (semua pengguna)          6) berkas .env & docker-compose aplikasi lain
+# ---------------------------------------------------------------------------
+declare -A PEMILIK=()
+catat() { # catat <port> <pemilik>
+  local p="$1" s="$2"
+  case "$p" in ''|*[!0-9]*) return 0 ;; esac
+  [ "$p" -ge 1 ] && [ "$p" -le 65535 ] || return 0
+  if [ -z "${PEMILIK[$p]:-}" ]; then PEMILIK[$p]="$s"
+  elif [[ ", ${PEMILIK[$p]}, " != *", $s, "* ]]; then PEMILIK[$p]="${PEMILIK[$p]}, $s"; fi
+}
+LAMA_KITA="/opt/${NAMA}/server/.env"
+
+# 1) Sedang mendengarkan
+while read -r lokal proses; do
+  catat "${lokal##*:}" "berjalan: ${proses:-?}"
+done < <(ss -ltnpH 2>/dev/null | awk '{print $4, $6}' | sed -E 's/users:\(\("([^"]+)".*/\1/')
+
+# 2) Docker — port host yang dipublikasikan, termasuk kontainer yang sedang berhenti
+if command -v docker >/dev/null 2>&1; then
+  while read -r nama status portlist; do
+    for hp in $portlist; do catat "$hp" "docker ${nama#/} (${status})"; done
+  done < <(docker ps -aq 2>/dev/null | xargs -r docker inspect --format '{{.Name}} {{.State.Status}} {{range $p,$b := .HostConfig.PortBindings}}{{range $b}}{{.HostPort}} {{end}}{{end}}' 2>/dev/null)
+fi
+
+# 3) Nginx proxy_pass ke port lokal
+if command -v nginx >/dev/null 2>&1; then
+  # (situs milik aplikasi ini sendiri tidak dihitung)
+  while read -r berkas p; do catat "$p" "nginx $(basename "$berkas")"; done < <(
+    (nginx -T 2>/dev/null || true) \
+      | awk '/^# configuration file /{f=$4; sub(/:$/,"",f)} /proxy_pass/{print f, $0}' \
+      | grep -vE "/${DOMAIN//./\\.}(\\.conf)? " \
+      | sed -nE 's#^(\S+) .*proxy_pass\s+https?://(127\.0\.0\.1|localhost|0\.0\.0\.0|\[::1\]):([0-9]+).*#\1 \3#p')
+fi
+
+# 4) Layanan systemd buatan pengguna (Environment=PORT=…, --port …, EnvironmentFile)
+for unit in /etc/systemd/system/*.service; do
+  [ -f "$unit" ] || continue
+  nama_unit="$(basename "$unit" .service)"
+  [ "$nama_unit" = "${NAMA}-api" ] && continue
+  while read -r p; do catat "$p" "systemd ${nama_unit}"; done < <(
+    grep -hoE '(PORT=|--port[= ]|-p )[0-9]{2,5}' "$unit" 2>/dev/null | grep -oE '[0-9]+$')
+  for ef in $(grep -hoE '^EnvironmentFile=-?\S+' "$unit" 2>/dev/null | sed -E 's/^EnvironmentFile=-?//'); do
+    [ -f "$ef" ] && while read -r p; do catat "$p" "systemd ${nama_unit}"; done < <(grep -hoE '^\s*[A-Z_]*PORT=\s*"?[0-9]{2,5}' "$ef" | grep -oE '[0-9]+$')
+  done
+done
+
+# 5) PM2 — daftar proses tersimpan milik root & semua pengguna (juga yang sedang berhenti)
+for dump in /root/.pm2/dump.pm2 /home/*/.pm2/dump.pm2; do
+  [ -f "$dump" ] || continue
+  while IFS='|' read -r p nm; do catat "$p" "pm2 ${nm}"; done < <(python3 - "$dump" <<'PY' 2>/dev/null
+import json, re, sys
+for app in json.load(open(sys.argv[1])):
+    nama = app.get("name", "?")
+    teks = json.dumps({k: app.get(k) for k in ("env", "args", "pm_exec_path")})
+    for m in set(re.findall(r'"PORT":\s*"?(\d{2,5})|--port[= ](\d{2,5})', teks)):
+        print(f"{m[0] or m[1]}|{nama}")
+PY
+)
+done
+
+# 6) Berkas konfigurasi aplikasi lain (.env & docker-compose) di folder umum
+while read -r berkas; do
+  [ "$berkas" = "$LAMA_KITA" ] && continue
+  case "$berkas" in /opt/${NAMA}/*|*/node_modules/*) continue ;; esac
+  label="berkas ${berkas}"
+  case "$(basename "$berkas")" in
+    .env*) while read -r p; do catat "$p" "$label"; done < <(grep -hoE '^\s*[A-Z_]*PORT=\s*"?[0-9]{2,5}' "$berkas" 2>/dev/null | grep -oE '[0-9]+$') ;;
+    *) while read -r p; do catat "$p" "$label"; done < <(grep -hoE '^\s*-\s*"?([0-9.]+:)?[0-9]{2,5}:[0-9]{2,5}' "$berkas" 2>/dev/null | sed -E 's/^\s*-\s*"?//; s/^[0-9.]+:([0-9]+:)/\1/' | cut -d: -f1) ;;
+  esac
+done < <(find /opt /srv /var/www /root /home -maxdepth 4 -type f \( -name '.env' -o -name '.env.production' -o -name 'docker-compose*.yml' -o -name 'docker-compose*.yaml' -o -name 'compose.yml' -o -name 'compose.yaml' \) 2>/dev/null)
+
+port_bebas() { [ -z "${PEMILIK[$1]:-}" ]; }
+judul "Port yang sudah dipakai/dipesan aplikasi lain"
+if [ "${#PEMILIK[@]}" -eq 0 ]; then
+  baris "(tidak ada)" ""
+else
+  for p in $(printf '%s\n' "${!PEMILIK[@]}" | sort -n); do baris "$p" "${PEMILIK[$p]}" | cut -c1-160; done
+fi
 
 PORT_API=""
-if [ -f "/opt/${NAMA}/server/.env" ]; then
-  PORT_API="$(grep -E '^PORT=' "/opt/${NAMA}/server/.env" | cut -d= -f2)"
-fi
-if [ -z "$PORT_API" ]; then
-  TERPAKAI_NGINX="$( (nginx -T 2>/dev/null || true) | grep -oE 'proxy_pass\s+https?://[^;]+' | grep -oE ':[0-9]+' | tr -d ':' | sort -u | tr '\n' ' ')"
+if [ -f "$LAMA_KITA" ]; then
+  # Pemasangan ulang: pakai port lama, tapi pastikan tidak "direbut" aplikasi lain
+  PORT_API="$(grep -E '^PORT=' "$LAMA_KITA" | cut -d= -f2)"
+  LAIN="$(printf '%s' "${PEMILIK[$PORT_API]:-}" | tr ',' '\n' | grep -vE "berjalan: node$" | sed 's/^ //' | tr '\n' ',' | sed 's/,$//')"
+  PEMEGANG="$(ss -ltnpH "sport = :$PORT_API" 2>/dev/null | grep -oE 'pid=[0-9]+' | head -1 | cut -d= -f2 || true)"
+  if [ -n "$PEMEGANG" ] && [ "$(ps -o user= -p "$PEMEGANG" 2>/dev/null | tr -d ' ')" != "$NAMA" ]; then
+    MASALAH+=("Port API ${PORT_API} (dari pemasangan sebelumnya) sekarang dipakai program lain (pid ${PEMEGANG}).")
+  elif [ -n "$LAIN" ]; then
+    MASALAH+=("Port API ${PORT_API} (dari pemasangan sebelumnya) kini juga dipesan: ${LAIN}.")
+  fi
+else
   for p in $(seq "$PORT_API_AWAL" "$PORT_API_AKHIR"); do
-    if ! port_dipakai "$p" && ! printf ' %s ' "$TERPAKAI_NGINX" | grep -q " $p "; then PORT_API="$p"; break; fi
+    if port_bebas "$p"; then PORT_API="$p"; break; fi
   done
 fi
-baris "Port API aplikasi ini" "${PORT_API:-TIDAK ADA YANG KOSONG} (hanya 127.0.0.1)"
+judul "Port untuk aplikasi ini"
+baris "Port API" "${PORT_API:-TIDAK ADA YANG KOSONG} (hanya 127.0.0.1, tidak dibuka ke internet)"
 [ -z "$PORT_API" ] && MASALAH+=("Tidak ada port kosong di ${PORT_API_AWAL}-${PORT_API_AKHIR}.")
 
 judul "PostgreSQL"

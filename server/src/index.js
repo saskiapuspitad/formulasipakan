@@ -15,9 +15,22 @@ await jalankanMigrasi(pool);
 await isiDataAwal(pool);
 
 const app = buatApp({ ...config, pool });
-const server = app.listen(config.port, config.host, () => {
+// Express 5 memanggil callback ini juga saat gagal, dengan argumen galat
+const server = app.listen(config.port, config.host, (e) => {
+  if (e) return gagalJalan(e);
   console.log(`API Sistem Formulasi Pakan berjalan di http://${config.host}:${config.port}`);
 });
+function gagalJalan(e) {
+  if (e.code === "EADDRINUSE") {
+    console.error(
+      `Port ${config.port} sudah dipakai program lain. Aplikasi ini TIDAK merebutnya.\n` +
+        `Pilih port lain: ubah PORT di .env (dan proxy_pass di konfigurasi Nginx situs ini), lalu jalankan ulang.`
+    );
+  } else {
+    console.error(e);
+  }
+  pool.end().finally(() => process.exit(1));
+}
 
 function berhenti() {
   server.close(() => pool.end().then(() => process.exit(0)));
