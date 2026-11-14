@@ -24,13 +24,15 @@ ENV NODE_ENV=production \
     PORT=3000 \
     STATIC_DIR=/app/public
 WORKDIR /app
-COPY --from=server-deps /app/node_modules ./node_modules
-COPY server/package.json ./
-COPY server/src ./src
-COPY server/scripts ./scripts
-COPY server/migrations ./migrations
-COPY server/data ./data
-COPY --from=web /build/web/dist ./public
+# --chown: berkas dari laptop bisa berhak akses 600 (hanya pemilik); jadikan milik
+# pengguna "node" agar aplikasi selalu bisa membacanya, apa pun hak akses asalnya.
+COPY --from=server-deps --chown=node:node /app/node_modules ./node_modules
+COPY --chown=node:node server/package.json ./
+COPY --chown=node:node server/src ./src
+COPY --chown=node:node server/scripts ./scripts
+COPY --chown=node:node server/migrations ./migrations
+COPY --chown=node:node server/data ./data
+COPY --from=web --chown=node:node /build/web/dist ./public
 USER node
 EXPOSE 3000
 # Sehat = API menjawab DAN yang menjawab memang aplikasi ini

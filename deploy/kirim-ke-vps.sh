@@ -36,7 +36,8 @@ if [ "${1:-}" = "--docker" ]; then
   DOMAIN="${2:-formulasipakan.id}"
   echo "==> 1/2 Mengirim kode ke $TUJUAN …"
   ssh "$TUJUAN" 'S=""; [ "$(id -u)" -ne 0 ] && S="sudo"; command -v rsync >/dev/null 2>&1 || { $S apt-get update -y && $S apt-get install -y --no-upgrade rsync; }; mkdir -p ~/formulasipakan-rilis'
-  rsync -az --delete --exclude node_modules --exclude dist --exclude .git --exclude _to_delete \
+  # --chmod: samakan hak akses (berkas di Mac bisa 600) agar terbaca di server & kontainer
+  rsync -az --delete --chmod=D755,F644 --exclude node_modules --exclude dist --exclude .git --exclude _to_delete \
     --exclude '.env' --exclude '.env.*' --exclude 'pgdata*' --exclude '*.tsbuildinfo' --exclude .DS_Store \
     "$AKAR/" "$TUJUAN:formulasipakan-rilis/"
   echo "==> 2/2 Memasang di VPS (pertama kali ±5–10 menit untuk membangun image)…"
