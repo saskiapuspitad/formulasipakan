@@ -70,7 +70,7 @@ export function HasilView({
     lines.push("");
     lines.push(`Total Campuran: ${totalKg.toFixed(1)} kg (100%)`);
     lines.push(`--`);
-    lines.push(`Dihitung dengan Sistem Formulasi Pakan - Lab Nutrisi Fapet UB`);
+    lines.push(`Dihitung dengan Sistem Formulasi Pakan - Precision Livestock Farming Research Group, Faculty of Animal Science and Technology, Universitas Brawijaya`);
 
     return lines.join("\n");
   }

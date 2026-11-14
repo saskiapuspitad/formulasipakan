@@ -71,7 +71,8 @@ export function Login({ onMasuk }: { onMasuk: (p: Pengguna) => void }) {
           </div>
           <h1 className="text-xl font-bold tracking-tight text-slate-800">Sistem Formulasi Pakan</h1>
           <p className="text-xs font-medium text-emerald-800">Ternak Unggas</p>
-          <p className="text-[11px] text-slate-500 mt-0.5">Fakultas Peternakan · Universitas Brawijaya</p>
+          <p className="text-[11px] font-medium text-slate-600 mt-1.5 leading-snug">Precision Livestock Farming Research Group</p>
+          <p className="text-[11px] text-slate-500 leading-snug">Faculty of Animal Science and Technology · Universitas Brawijaya</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">

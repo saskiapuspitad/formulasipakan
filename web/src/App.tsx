@@ -324,7 +324,7 @@ export default function App() {
       <Pusat>
         <div className="flex flex-col items-center gap-2">
           <div className="w-8 h-8 border-3 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-500 text-xs font-medium">Memuat standar gizi Fapet UB…</p>
+          <p className="text-slate-500 text-xs font-medium">Memuat data standar gizi…</p>
         </div>
       </Pusat>
     );
@@ -685,8 +685,11 @@ export default function App() {
         <div className="min-w-0">
           <div className="flex items-center gap-x-2 gap-y-0.5 flex-wrap">
             <h1 className="text-base font-bold text-slate-900 tracking-tight leading-tight">Sistem Formulasi Pakan</h1>
-            <span className="text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded">
-              Fapet UB
+            <span
+              className="text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded"
+              title="Precision Livestock Farming Research Group, Faculty of Animal Science and Technology, Universitas Brawijaya"
+            >
+              PLF UB
             </span>
             {!isOnline && (
               <span className="text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 rounded px-1.5 py-0.5">

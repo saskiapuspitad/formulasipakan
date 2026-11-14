@@ -498,7 +498,7 @@ function TabBahan({ master, onTersimpan }: { master: MasterData; onTersimpan: ()
 
         <label className="block">
           <span className="text-xs font-semibold text-slate-600">Catatan sumber data (opsional)</span>
-          <input value={f.catatan_sumber} onChange={(e) => set({ catatan_sumber: e.target.value })} placeholder="Contoh: Hasil uji Lab Nutrisi Fapet UB, 2026" className={kelasInput + " mt-1"} />
+          <input value={f.catatan_sumber} onChange={(e) => set({ catatan_sumber: e.target.value })} placeholder="Contoh: Hasil uji laboratorium, 2026" className={kelasInput + " mt-1"} />
         </label>
 
         <Pesan p={pesan} />
