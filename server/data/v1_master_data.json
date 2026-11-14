@@ -1,0 +1,2328 @@
+{
+  "meta": {
+    "versi": "V1",
+    "judul": "Master Data V1 — Formulasi Pakan Unggas (multi-ternak)",
+    "sumber_komposisi": "PDF 'data bahan pakan ternak' (Lampiran A, 31 bahan). Harga 2016.",
+    "sumber_kebutuhan_batasan": "Excel 'Kebutuhan Nutrisi Ternak Unggas 2026' (Kebutuhan Nutrisi Unggas Indonesia).",
+    "aturan_v1": {
+      "parameter_kendala": "8 parameter: EM, PK, LK, SK, Ca, P, Lisin, Methionin.",
+      "SK": "Diperlakukan sebagai batas MAKSIMUM (memakai batas atas rentang).",
+      "LK_Ca_P": "Rentang (min & maks) bila tersedia; bila nilai tunggal -> minimum.",
+      "EM_PK_Lisin_Methionin": "Batas minimum.",
+      "pemetaan_batasan": "Periode 'grow' Starter/Grower -> kolom Broiler_Starter; grow Finisher -> Broiler_Finisher; periode 'layer' Starter/Grower/Finisher -> Layer_Starter/Grower/Finisher. (Memakai angka yang ADA di file Anda, tidak mengarang.)"
+    },
+    "catatan_integritas": "Nilai komposisi berstatus PERLU_VERIFIKASI. Nilai 0 pada komposisi bisa berarti 'data kosong' (lihat param_bernilai_0_cek). Harga 2016 perlu diperbarui."
+  },
+  "parameter": [
+    {
+      "id": "EM",
+      "nama": "Energi metabolis",
+      "satuan": "kkal/kg",
+      "arah": "min"
+    },
+    {
+      "id": "PK",
+      "nama": "Protein kasar",
+      "satuan": "%",
+      "arah": "min"
+    },
+    {
+      "id": "LK",
+      "nama": "Lemak kasar",
+      "satuan": "%",
+      "arah": "rentang"
+    },
+    {
+      "id": "SK",
+      "nama": "Serat kasar",
+      "satuan": "%",
+      "arah": "maks"
+    },
+    {
+      "id": "Ca",
+      "nama": "Kalsium",
+      "satuan": "%",
+      "arah": "rentang"
+    },
+    {
+      "id": "P",
+      "nama": "Fosfor",
+      "satuan": "%",
+      "arah": "rentang"
+    },
+    {
+      "id": "Lisin",
+      "nama": "Lisin",
+      "satuan": "%",
+      "arah": "min"
+    },
+    {
+      "id": "Methionin",
+      "nama": "Metionin",
+      "satuan": "%",
+      "arah": "min"
+    }
+  ],
+  "ternak": [
+    {
+      "id": "ayam_kub",
+      "nama": "Ayam KUB"
+    },
+    {
+      "id": "ayam_kampung",
+      "nama": "Ayam Kampung"
+    },
+    {
+      "id": "ayam_pedaging_broiler",
+      "nama": "Ayam Pedaging (Broiler)"
+    },
+    {
+      "id": "ayam_petelur_layer",
+      "nama": "Ayam Petelur (Layer)"
+    },
+    {
+      "id": "itik",
+      "nama": "Itik"
+    },
+    {
+      "id": "kalkun",
+      "nama": "Kalkun"
+    },
+    {
+      "id": "puyuh",
+      "nama": "Puyuh"
+    }
+  ],
+  "periode": [
+    {
+      "id": "ayam_pedaging_periode_pre_starter",
+      "jenis_ternak": "Ayam Pedaging (Broiler)",
+      "nama": "Ayam Pedaging Periode Pre-Starter",
+      "tujuan": "grow",
+      "stage": "Starter",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2950.0,
+          "maks": null,
+          "raw": "2950"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 22.5,
+          "maks": null,
+          "raw": "22.5"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "rentang",
+          "min": 0.9,
+          "maks": 1.1,
+          "raw": "0.9-1.1"
+        },
+        "P": {
+          "jenis": "rentang",
+          "min": 0.7,
+          "maks": 0.9,
+          "raw": "0.7-0.9"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.1,
+          "maks": null,
+          "raw": "1.1"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.5,
+          "maks": null,
+          "raw": "0.5"
+        }
+      }
+    },
+    {
+      "id": "ayam_pedaging_periode_starter",
+      "jenis_ternak": "Ayam Pedaging (Broiler)",
+      "nama": "Ayam Pedaging Periode Starter",
+      "tujuan": "grow",
+      "stage": "Starter",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 3050.0,
+          "maks": null,
+          "raw": "3050"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 21.5,
+          "maks": null,
+          "raw": "21.5"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "rentang",
+          "min": 0.9,
+          "maks": 1.1,
+          "raw": "0.9-1.1"
+        },
+        "P": {
+          "jenis": "rentang",
+          "min": 0.7,
+          "maks": 0.9,
+          "raw": "0.7-0.9"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.1,
+          "maks": null,
+          "raw": "1.1"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.5,
+          "maks": null,
+          "raw": "0.5"
+        }
+      }
+    },
+    {
+      "id": "ayam_pedaging_periode_finisher",
+      "jenis_ternak": "Ayam Pedaging (Broiler)",
+      "nama": "Ayam Pedaging Periode Finisher",
+      "tujuan": "grow",
+      "stage": "Finisher",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 3100.0,
+          "maks": null,
+          "raw": "3100"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 20.0,
+          "maks": null,
+          "raw": "20"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "rentang",
+          "min": 0.9,
+          "maks": 1.1,
+          "raw": "0.9-1.1"
+        },
+        "P": {
+          "jenis": "rentang",
+          "min": 0.7,
+          "maks": 0.9,
+          "raw": "0.7-0.9"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.0,
+          "maks": null,
+          "raw": "1"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.38,
+          "maks": null,
+          "raw": "0.38"
+        }
+      }
+    },
+    {
+      "id": "ayam_petelur_periode_starter",
+      "jenis_ternak": "Ayam Petelur (Layer)",
+      "nama": "Ayam Petelur Periode Starter",
+      "tujuan": "layer",
+      "stage": "Starter",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2800.0,
+          "maks": null,
+          "raw": "2800"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 19.0,
+          "maks": null,
+          "raw": "19"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 4.0,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "4-5"
+        },
+        "Ca": {
+          "jenis": "rentang",
+          "min": 0.9,
+          "maks": 1.1,
+          "raw": "0.9-1.1"
+        },
+        "P": {
+          "jenis": "rentang",
+          "min": 0.6,
+          "maks": 0.8,
+          "raw": "0.6-0.8"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 0.85,
+          "maks": null,
+          "raw": "0.85"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.3,
+          "maks": null,
+          "raw": "0.3"
+        }
+      }
+    },
+    {
+      "id": "ayam_petelur_periode_grower",
+      "jenis_ternak": "Ayam Petelur (Layer)",
+      "nama": "Ayam Petelur Periode Grower",
+      "tujuan": "layer",
+      "stage": "Grower",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2600.0,
+          "maks": null,
+          "raw": "2600"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 16.0,
+          "maks": null,
+          "raw": "16"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 4.0,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 6.0,
+          "raw": "5-6"
+        },
+        "Ca": {
+          "jenis": "rentang",
+          "min": 0.9,
+          "maks": 1.1,
+          "raw": "0.9-1.1"
+        },
+        "P": {
+          "jenis": "rentang",
+          "min": 0.6,
+          "maks": 0.8,
+          "raw": "0.6-0.8"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 0.6,
+          "maks": null,
+          "raw": "0.6"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.25,
+          "maks": null,
+          "raw": "0.25"
+        }
+      }
+    },
+    {
+      "id": "ayam_petelur_periode_layer_1",
+      "jenis_ternak": "Ayam Petelur (Layer)",
+      "nama": "Ayam Petelur Periode Layer 1",
+      "tujuan": "layer",
+      "stage": "Finisher",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2650.0,
+          "maks": null,
+          "raw": "2650"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 17.0,
+          "maks": null,
+          "raw": "17"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 4.0,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "Ca": {
+          "jenis": "rentang",
+          "min": 3.3,
+          "maks": 3.8,
+          "raw": "3.3-3.8"
+        },
+        "P": {
+          "jenis": "rentang",
+          "min": 0.7,
+          "maks": 0.9,
+          "raw": "0.7-0.9"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 0.73,
+          "maks": null,
+          "raw": "0.73"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.34,
+          "maks": null,
+          "raw": "0.34"
+        }
+      }
+    },
+    {
+      "id": "ayam_petelur_periode_layer_2",
+      "jenis_ternak": "Ayam Petelur (Layer)",
+      "nama": "Ayam Petelur Periode layer 2",
+      "tujuan": "layer",
+      "stage": "Finisher",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2650.0,
+          "maks": null,
+          "raw": "2650"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 16.5,
+          "maks": null,
+          "raw": "16.5"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 4.0,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "Ca": {
+          "jenis": "rentang",
+          "min": 3.5,
+          "maks": 3.8,
+          "raw": "3.5-3.8"
+        },
+        "P": {
+          "jenis": "rentang",
+          "min": 0.7,
+          "maks": 0.9,
+          "raw": "0.7-0.9"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 0.6,
+          "maks": null,
+          "raw": "0.6"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.25,
+          "maks": null,
+          "raw": "0.25"
+        }
+      }
+    },
+    {
+      "id": "kalkun_periode_starter_1",
+      "jenis_ternak": "Kalkun",
+      "nama": "Kalkun Periode Starter 1",
+      "tujuan": "grow",
+      "stage": "Starter",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2800.0,
+          "maks": null,
+          "raw": "2800"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 28.0,
+          "maks": null,
+          "raw": "28"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 1.2,
+          "maks": null,
+          "raw": "1.2"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.6,
+          "maks": null,
+          "raw": "0.6"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.6,
+          "maks": null,
+          "raw": "1.6"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.55,
+          "maks": null,
+          "raw": "0.55"
+        }
+      }
+    },
+    {
+      "id": "kalkun_periode_starter_2",
+      "jenis_ternak": "Kalkun",
+      "nama": "Kalkun Periode Starter 2",
+      "tujuan": "grow",
+      "stage": "Starter",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2900.0,
+          "maks": null,
+          "raw": "2900"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 26.0,
+          "maks": null,
+          "raw": "26"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 1.0,
+          "maks": null,
+          "raw": "1"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.5,
+          "maks": null,
+          "raw": "0.5"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.5,
+          "maks": null,
+          "raw": "1.5"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.45,
+          "maks": null,
+          "raw": "0.45"
+        }
+      }
+    },
+    {
+      "id": "kalkun_periode_grower_1",
+      "jenis_ternak": "Kalkun",
+      "nama": "Kalkun Periode Grower 1",
+      "tujuan": "grow",
+      "stage": "Grower",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 3000.0,
+          "maks": null,
+          "raw": "3000"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 22.0,
+          "maks": null,
+          "raw": "22"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 0.85,
+          "maks": null,
+          "raw": "0.85"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.42,
+          "maks": null,
+          "raw": "0.42"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.3,
+          "maks": null,
+          "raw": "1.3"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.4,
+          "maks": null,
+          "raw": "0.4"
+        }
+      }
+    },
+    {
+      "id": "kalkun_periode_grower_2",
+      "jenis_ternak": "Kalkun",
+      "nama": "Kalkun Periode Grower 2",
+      "tujuan": "grow",
+      "stage": "Grower",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 3100.0,
+          "maks": null,
+          "raw": "3100"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 19.0,
+          "maks": null,
+          "raw": "19"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 0.75,
+          "maks": null,
+          "raw": "0.75"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.38,
+          "maks": null,
+          "raw": "0.38"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.0,
+          "maks": null,
+          "raw": "1"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.35,
+          "maks": null,
+          "raw": "0.35"
+        }
+      }
+    },
+    {
+      "id": "kalkun_periode_finisher_1",
+      "jenis_ternak": "Kalkun",
+      "nama": "Kalkun Periode Finisher 1",
+      "tujuan": "grow",
+      "stage": "Finisher",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 3200.0,
+          "maks": null,
+          "raw": "3200"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 16.5,
+          "maks": null,
+          "raw": "16.5"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 0.65,
+          "maks": null,
+          "raw": "0.65"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.32,
+          "maks": null,
+          "raw": "0.32"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 0.8,
+          "maks": null,
+          "raw": "0.8"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.25,
+          "maks": null,
+          "raw": "0.25"
+        }
+      }
+    },
+    {
+      "id": "kalkun_periode_finisher_2",
+      "jenis_ternak": "Kalkun",
+      "nama": "Kalkun Periode Finisher 2",
+      "tujuan": "grow",
+      "stage": "Finisher",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 3300.0,
+          "maks": null,
+          "raw": "3300"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 14.0,
+          "maks": null,
+          "raw": "14"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 0.55,
+          "maks": null,
+          "raw": "0.55"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.28,
+          "maks": null,
+          "raw": "0.28"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 0.65,
+          "maks": null,
+          "raw": "0.65"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.25,
+          "maks": null,
+          "raw": "0.25"
+        }
+      }
+    },
+    {
+      "id": "kalkun_periode_layer",
+      "jenis_ternak": "Kalkun",
+      "nama": "Kalkun Periode Layer",
+      "tujuan": "layer",
+      "stage": "Finisher",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2900.0,
+          "maks": null,
+          "raw": "2900"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 14.0,
+          "maks": null,
+          "raw": "14"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 4.0,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 2.25,
+          "maks": null,
+          "raw": "2.25"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.35,
+          "maks": null,
+          "raw": "0.35"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 0.6,
+          "maks": null,
+          "raw": "0.6"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.2,
+          "maks": null,
+          "raw": "0.2"
+        }
+      }
+    },
+    {
+      "id": "itik_periode_starter",
+      "jenis_ternak": "Itik",
+      "nama": "Itik Periode Starter",
+      "tujuan": "grow",
+      "stage": "Starter",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2900.0,
+          "maks": null,
+          "raw": "2900"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 22.0,
+          "maks": null,
+          "raw": "22"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 0.65,
+          "maks": null,
+          "raw": "0.65"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.4,
+          "maks": null,
+          "raw": "0.4"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 0.9,
+          "maks": null,
+          "raw": "0.9"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.4,
+          "maks": null,
+          "raw": "0.4"
+        }
+      }
+    },
+    {
+      "id": "itik_periode_grower",
+      "jenis_ternak": "Itik",
+      "nama": "Itik  Periode Grower",
+      "tujuan": "grow",
+      "stage": "Grower",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 3000.0,
+          "maks": null,
+          "raw": "3000"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 16.0,
+          "maks": null,
+          "raw": "16"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 0.6,
+          "maks": null,
+          "raw": "0.6"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.3,
+          "maks": null,
+          "raw": "0.3"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 0.65,
+          "maks": null,
+          "raw": "0.65"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.3,
+          "maks": null,
+          "raw": "0.3"
+        }
+      }
+    },
+    {
+      "id": "itik_periode_layer",
+      "jenis_ternak": "Itik",
+      "nama": "Itik Periode Layer",
+      "tujuan": "layer",
+      "stage": "Finisher",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2850.0,
+          "maks": null,
+          "raw": "2850"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 15.0,
+          "maks": null,
+          "raw": "15"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 4.0,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 2.75,
+          "maks": null,
+          "raw": "2.75"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.4,
+          "maks": null,
+          "raw": "0.4"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 0.6,
+          "maks": null,
+          "raw": "0.6"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.27,
+          "maks": null,
+          "raw": "0.27"
+        }
+      }
+    },
+    {
+      "id": "puyuh_periode_starter",
+      "jenis_ternak": "Puyuh",
+      "nama": "Puyuh Periode Starter",
+      "tujuan": "grow",
+      "stage": "Starter",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2900.0,
+          "maks": null,
+          "raw": "2900"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 24.0,
+          "maks": null,
+          "raw": "24"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 5.0,
+          "maks": 8.0,
+          "raw": "5-8"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 5.0,
+          "raw": "3-5"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 0.8,
+          "maks": null,
+          "raw": "0.8"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.3,
+          "maks": null,
+          "raw": "0.3"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.3,
+          "maks": null,
+          "raw": "1.3"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.5,
+          "maks": null,
+          "raw": "0.5"
+        }
+      }
+    },
+    {
+      "id": "puyuh_periode_layer",
+      "jenis_ternak": "Puyuh",
+      "nama": "Puyuh Periode Layer",
+      "tujuan": "layer",
+      "stage": "Finisher",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2900.0,
+          "maks": null,
+          "raw": "2900"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 20.0,
+          "maks": null,
+          "raw": "20"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 4.0,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "Ca": {
+          "jenis": "min",
+          "min": 2.75,
+          "maks": null,
+          "raw": "2.75"
+        },
+        "P": {
+          "jenis": "min",
+          "min": 0.35,
+          "maks": null,
+          "raw": "0.35"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.0,
+          "maks": null,
+          "raw": "1"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.45,
+          "maks": null,
+          "raw": "0.45"
+        }
+      }
+    },
+    {
+      "id": "ayam_kampung_starter",
+      "jenis_ternak": "Ayam Kampung",
+      "nama": "Ayam Kampung Starter",
+      "tujuan": "grow",
+      "stage": "Starter",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2900.0,
+          "maks": null,
+          "raw": "2900"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 19.0,
+          "maks": null,
+          "raw": "19"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 4.0,
+          "maks": 6.0,
+          "raw": "4-6"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 7.0,
+          "raw": "5-7"
+        },
+        "Ca": {
+          "jenis": "rentang",
+          "min": 0.9,
+          "maks": 1.1,
+          "raw": "0.9-1.1"
+        },
+        "P": {
+          "jenis": "rentang",
+          "min": 0.7,
+          "maks": 0.9,
+          "raw": "0.7-0.9"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.0,
+          "maks": null,
+          "raw": "1"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.45,
+          "maks": null,
+          "raw": "0.45"
+        }
+      }
+    },
+    {
+      "id": "ayam_kampung_grower",
+      "jenis_ternak": "Ayam Kampung",
+      "nama": "Ayam Kampung Grower",
+      "tujuan": "grow",
+      "stage": "Grower",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2500.0,
+          "maks": null,
+          "raw": "2500"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 14.0,
+          "maks": null,
+          "raw": "14"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 4.0,
+          "maks": 7.0,
+          "raw": "4-7"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 6.0,
+          "raw": "3-6"
+        },
+        "Ca": {
+          "jenis": "rentang",
+          "min": 0.9,
+          "maks": 1.1,
+          "raw": "0.9-1.1"
+        },
+        "P": {
+          "jenis": "rentang",
+          "min": 0.7,
+          "maks": 0.9,
+          "raw": "0.7-0.9"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.0,
+          "maks": null,
+          "raw": "1"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.45,
+          "maks": null,
+          "raw": "0.45"
+        }
+      }
+    },
+    {
+      "id": "ayam_kampung_layer",
+      "jenis_ternak": "Ayam Kampung",
+      "nama": "Ayam Kampung Layer",
+      "tujuan": "layer",
+      "stage": "Finisher",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2500.0,
+          "maks": null,
+          "raw": "2500"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 16.0,
+          "maks": null,
+          "raw": "16"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 4.0,
+          "maks": 7.0,
+          "raw": "4-7"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 6.0,
+          "raw": "3-6"
+        },
+        "Ca": {
+          "jenis": "rentang",
+          "min": 2.75,
+          "maks": 3.0,
+          "raw": "2.75-3.0"
+        },
+        "P": {
+          "jenis": "rentang",
+          "min": 0.7,
+          "maks": 0.9,
+          "raw": "0.7-0.9"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.0,
+          "maks": null,
+          "raw": "1"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.45,
+          "maks": null,
+          "raw": "0.45"
+        }
+      }
+    },
+    {
+      "id": "ayam_kub_layer",
+      "jenis_ternak": "Ayam KUB",
+      "nama": "Ayam KUB Layer",
+      "tujuan": "layer",
+      "stage": "Finisher",
+      "kebutuhan": {
+        "EM": {
+          "jenis": "min",
+          "min": 2800.0,
+          "maks": null,
+          "raw": "2800"
+        },
+        "PK": {
+          "jenis": "min",
+          "min": 17.5,
+          "maks": null,
+          "raw": "17.5"
+        },
+        "LK": {
+          "jenis": "rentang",
+          "min": 4.0,
+          "maks": 7.0,
+          "raw": "4-7"
+        },
+        "SK": {
+          "jenis": "maks",
+          "min": null,
+          "maks": 6.0,
+          "raw": "3-6"
+        },
+        "Ca": {
+          "jenis": "rentang",
+          "min": 2.75,
+          "maks": 3.0,
+          "raw": "2.75-3.0"
+        },
+        "P": {
+          "jenis": "rentang",
+          "min": 0.7,
+          "maks": 0.9,
+          "raw": "0.7-0.9"
+        },
+        "Lisin": {
+          "jenis": "min",
+          "min": 1.0,
+          "maks": null,
+          "raw": "1"
+        },
+        "Methionin": {
+          "jenis": "min",
+          "min": 0.45,
+          "maks": null,
+          "raw": "0.45"
+        }
+      }
+    }
+  ],
+  "bahan": [
+    {
+      "id": "dedak_halus",
+      "nama": "DEDAK HALUS",
+      "kategori": "energi",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 1630,
+        "PK": 8,
+        "LK": 8,
+        "SK": 12,
+        "Ca": 0.12,
+        "P": 0.21,
+        "Lisin": 0.77,
+        "Methionin": 0.29
+      },
+      "harga_2016_rp_per_kg": 2500,
+      "batasan_nama": "Dedak Halus",
+      "batasan_maks_persen": {
+        "Layer_Starter": 10.0,
+        "Layer_Grower": 15.0,
+        "Layer_Finisher": 40.0,
+        "Broiler_Starter": 10.0,
+        "Broiler_Finisher": 10.0,
+        "Bibit_Breeder": 25.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "dedak_jagung",
+      "nama": "DEDAK JAGUNG",
+      "kategori": "energi",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2950,
+        "PK": 10.6,
+        "LK": 6,
+        "SK": 5,
+        "Ca": 0.04,
+        "P": 0.15,
+        "Lisin": 0.5,
+        "Methionin": 0.17
+      },
+      "harga_2016_rp_per_kg": 4000,
+      "batasan_nama": null,
+      "batasan_maks_persen": null,
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "gandum",
+      "nama": "GANDUM",
+      "kategori": "energi",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2980,
+        "PK": 10.7,
+        "LK": 2.1,
+        "SK": 2.1,
+        "Ca": 0.05,
+        "P": 0,
+        "Lisin": 0,
+        "Methionin": 0.31
+      },
+      "harga_2016_rp_per_kg": 20000,
+      "batasan_nama": "Gandum",
+      "batasan_maks_persen": {
+        "Layer_Starter": 30.0,
+        "Layer_Grower": 40.0,
+        "Layer_Finisher": 50.0,
+        "Broiler_Starter": 30.0,
+        "Broiler_Finisher": 30.0,
+        "Bibit_Breeder": 50.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "P",
+        "Lisin"
+      ]
+    },
+    {
+      "id": "jagung_kuning",
+      "nama": "JAGUNG KUNING",
+      "kategori": "energi",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 3370,
+        "PK": 8.54,
+        "LK": 2.61,
+        "SK": 4.76,
+        "Ca": 0.02,
+        "P": 0.1,
+        "Lisin": 0.2,
+        "Methionin": 0.18
+      },
+      "harga_2016_rp_per_kg": 5000,
+      "batasan_nama": "Jagung",
+      "batasan_maks_persen": {
+        "Layer_Starter": 60.0,
+        "Layer_Grower": 60.0,
+        "Layer_Finisher": 60.0,
+        "Broiler_Starter": 60.0,
+        "Broiler_Finisher": 60.0,
+        "Bibit_Breeder": 60.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "menir",
+      "nama": "MENIR",
+      "kategori": "energi",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 3390,
+        "PK": 8.9,
+        "LK": 4,
+        "SK": 3,
+        "Ca": 0.03,
+        "P": 0.4,
+        "Lisin": 0,
+        "Methionin": 0.27
+      },
+      "harga_2016_rp_per_kg": 6000,
+      "batasan_nama": "Menir",
+      "batasan_maks_persen": {
+        "Layer_Starter": 40.0,
+        "Layer_Grower": 40.0,
+        "Layer_Finisher": 40.0,
+        "Broiler_Starter": 40.0,
+        "Broiler_Finisher": 40.0,
+        "Bibit_Breeder": 40.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "Lisin"
+      ]
+    },
+    {
+      "id": "pollard",
+      "nama": "POLLARD",
+      "kategori": "energi",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 1300,
+        "PK": 15,
+        "LK": 4,
+        "SK": 10,
+        "Ca": 0.14,
+        "P": 0.32,
+        "Lisin": 0.3,
+        "Methionin": 0.17
+      },
+      "harga_2016_rp_per_kg": 2300,
+      "batasan_nama": "Pollard",
+      "batasan_maks_persen": {
+        "Layer_Starter": 15.0,
+        "Layer_Grower": 15.0,
+        "Layer_Finisher": 40.0,
+        "Broiler_Starter": 15.0,
+        "Broiler_Finisher": 15.0,
+        "Bibit_Breeder": 25.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "sorghum",
+      "nama": "SORGHUM",
+      "kategori": "energi",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 3250,
+        "PK": 10,
+        "LK": 2.8,
+        "SK": 2,
+        "Ca": 0.03,
+        "P": 0.1,
+        "Lisin": 0.2,
+        "Methionin": 0.13
+      },
+      "harga_2016_rp_per_kg": 6000,
+      "batasan_nama": "Sorghum",
+      "batasan_maks_persen": {
+        "Layer_Starter": 30.0,
+        "Layer_Grower": 30.0,
+        "Layer_Finisher": 30.0,
+        "Broiler_Starter": 30.0,
+        "Broiler_Finisher": 30.0,
+        "Bibit_Breeder": 30.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "bungkil_biji_kapas",
+      "nama": "BUNGKIL BIJI KAPAS",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2100,
+        "PK": 41,
+        "LK": 4.8,
+        "SK": 12,
+        "Ca": 0.18,
+        "P": 0.33,
+        "Lisin": 1.6,
+        "Methionin": 0.6
+      },
+      "harga_2016_rp_per_kg": 2500,
+      "batasan_nama": "Bungkil Biji Kapas",
+      "batasan_maks_persen": {
+        "Layer_Starter": 5.0,
+        "Layer_Grower": 5.0,
+        "Layer_Finisher": 10.0,
+        "Broiler_Starter": 2.5,
+        "Broiler_Finisher": 5.0,
+        "Bibit_Breeder": 0.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "bungkil_biji_karet",
+      "nama": "BUNGKIL BIJI KARET",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2159,
+        "PK": 24.2,
+        "LK": 3.45,
+        "SK": 9.8,
+        "Ca": 0.11,
+        "P": 0,
+        "Lisin": 0,
+        "Methionin": 0
+      },
+      "harga_2016_rp_per_kg": 4500,
+      "batasan_nama": "Bungkil Biji Karet",
+      "batasan_maks_persen": {
+        "Layer_Starter": 10.0,
+        "Layer_Grower": 15.0,
+        "Layer_Finisher": 15.0,
+        "Broiler_Starter": 10.0,
+        "Broiler_Finisher": 15.0,
+        "Bibit_Breeder": 15.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "P",
+        "Lisin",
+        "Methionin"
+      ]
+    },
+    {
+      "id": "bungkil_kedele",
+      "nama": "BUNGKIL KEDELE",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2240,
+        "PK": 42,
+        "LK": 0.9,
+        "SK": 6,
+        "Ca": 0.29,
+        "P": 0.65,
+        "Lisin": 2.9,
+        "Methionin": 0.65
+      },
+      "harga_2016_rp_per_kg": 3000,
+      "batasan_nama": "Bungkil Kedelai",
+      "batasan_maks_persen": {
+        "Layer_Starter": 40.0,
+        "Layer_Grower": 30.0,
+        "Layer_Finisher": 40.0,
+        "Broiler_Starter": 40.0,
+        "Broiler_Finisher": 30.0,
+        "Bibit_Breeder": 30.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "bungkil_kelapa",
+      "nama": "BUNGKIL KELAPA",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2200,
+        "PK": 18.5,
+        "LK": 2.5,
+        "SK": 15,
+        "Ca": 0.2,
+        "P": 0.57,
+        "Lisin": 0.64,
+        "Methionin": 0.29
+      },
+      "harga_2016_rp_per_kg": 3500,
+      "batasan_nama": "Bungkil Kelapa",
+      "batasan_maks_persen": {
+        "Layer_Starter": 10.0,
+        "Layer_Grower": 15.0,
+        "Layer_Finisher": 25.0,
+        "Broiler_Starter": 15.0,
+        "Broiler_Finisher": 15.0,
+        "Bibit_Breeder": 15.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "bungkil_kc_tanah",
+      "nama": "BUNGKIL KC. TANAH",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2200,
+        "PK": 42,
+        "LK": 1.9,
+        "SK": 17,
+        "Ca": 0.2,
+        "P": 0.2,
+        "Lisin": 1.8,
+        "Methionin": 0.5
+      },
+      "harga_2016_rp_per_kg": 3000,
+      "batasan_nama": "Bungkil Kacang",
+      "batasan_maks_persen": {
+        "Layer_Starter": 5.0,
+        "Layer_Grower": 7.5,
+        "Layer_Finisher": 25.0,
+        "Broiler_Starter": 5.0,
+        "Broiler_Finisher": 7.5,
+        "Bibit_Breeder": 10.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "foka",
+      "nama": "FOKA",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2700,
+        "PK": 14,
+        "LK": 1.8,
+        "SK": 10.1,
+        "Ca": 2.25,
+        "P": 1,
+        "Lisin": 0.71,
+        "Methionin": 0.27
+      },
+      "harga_2016_rp_per_kg": 2000,
+      "batasan_nama": null,
+      "batasan_maks_persen": null,
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "hidrolisis_i_rumen",
+      "nama": "HIDROLISIS I. RUMEN",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2000,
+        "PK": 16.2,
+        "LK": 2.3,
+        "SK": 25.4,
+        "Ca": 0.38,
+        "P": 0.55,
+        "Lisin": 0,
+        "Methionin": 0
+      },
+      "harga_2016_rp_per_kg": 2500,
+      "batasan_nama": null,
+      "batasan_maks_persen": null,
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "Lisin",
+        "Methionin"
+      ]
+    },
+    {
+      "id": "mbm",
+      "nama": "MBM",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2190,
+        "PK": 52,
+        "LK": 10,
+        "SK": 2.8,
+        "Ca": 10,
+        "P": 5.1,
+        "Lisin": 2.61,
+        "Methionin": 0.69
+      },
+      "harga_2016_rp_per_kg": 5000,
+      "batasan_nama": "Tepung daging dan Tulang (MBM)",
+      "batasan_maks_persen": {
+        "Layer_Starter": 8.0,
+        "Layer_Grower": 8.0,
+        "Layer_Finisher": 8.0,
+        "Broiler_Starter": 8.0,
+        "Broiler_Finisher": 8.0,
+        "Bibit_Breeder": 8.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "susu_skim",
+      "nama": "SUSU SKIM",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2510,
+        "PK": 33,
+        "LK": 0.9,
+        "SK": 0.2,
+        "Ca": 1.3,
+        "P": 1,
+        "Lisin": 2.3,
+        "Methionin": 1
+      },
+      "harga_2016_rp_per_kg": 30000,
+      "batasan_nama": null,
+      "batasan_maks_persen": null,
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "tikan_ancovetta",
+      "nama": "T.IKAN (Ancovetta)",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2830,
+        "PK": 65,
+        "LK": 4,
+        "SK": 1,
+        "Ca": 4,
+        "P": 2.6,
+        "Lisin": 5.2,
+        "Methionin": 1.8
+      },
+      "harga_2016_rp_per_kg": 7500,
+      "batasan_nama": "Tepung Ikan",
+      "batasan_maks_persen": {
+        "Layer_Starter": 8.0,
+        "Layer_Grower": 7.0,
+        "Layer_Finisher": 7.0,
+        "Broiler_Starter": 7.0,
+        "Broiler_Finisher": 7.0,
+        "Bibit_Breeder": 8.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "tikan_herring",
+      "nama": "T.IKAN (Herring)",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2640,
+        "PK": 72,
+        "LK": 10,
+        "SK": 1,
+        "Ca": 2,
+        "P": 1.5,
+        "Lisin": 6.4,
+        "Methionin": 2
+      },
+      "harga_2016_rp_per_kg": 8000,
+      "batasan_nama": "Tepung Ikan",
+      "batasan_maks_persen": {
+        "Layer_Starter": 8.0,
+        "Layer_Grower": 7.0,
+        "Layer_Finisher": 7.0,
+        "Broiler_Starter": 7.0,
+        "Broiler_Finisher": 7.0,
+        "Bibit_Breeder": 8.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "tikan_menhaden",
+      "nama": "T.IKAN (Menhaden)",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2650,
+        "PK": 54,
+        "LK": 9,
+        "SK": 1,
+        "Ca": 5.5,
+        "P": 2.8,
+        "Lisin": 4,
+        "Methionin": 1.3
+      },
+      "harga_2016_rp_per_kg": 8500,
+      "batasan_nama": "Tepung Ikan",
+      "batasan_maks_persen": {
+        "Layer_Starter": 8.0,
+        "Layer_Grower": 7.0,
+        "Layer_Finisher": 7.0,
+        "Broiler_Starter": 7.0,
+        "Broiler_Finisher": 7.0,
+        "Bibit_Breeder": 8.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "tepung_bekicot",
+      "nama": "TEPUNG BEKICOT",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 4906,
+        "PK": 61,
+        "LK": 6.1,
+        "SK": 4.5,
+        "Ca": 2,
+        "P": 0,
+        "Lisin": 0,
+        "Methionin": 4.35
+      },
+      "harga_2016_rp_per_kg": 6500,
+      "batasan_nama": "Tepung Bekicot",
+      "batasan_maks_persen": {
+        "Layer_Starter": 3.0,
+        "Layer_Grower": 3.0,
+        "Layer_Finisher": 3.0,
+        "Broiler_Starter": 3.0,
+        "Broiler_Finisher": 3.0,
+        "Bibit_Breeder": 3.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "P",
+        "Lisin"
+      ]
+    },
+    {
+      "id": "tepung_bulu_ayam",
+      "nama": "TEPUNG BULU AYAM",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2310,
+        "PK": 85,
+        "LK": 2.5,
+        "SK": 1.5,
+        "Ca": 0.32,
+        "P": 0.32,
+        "Lisin": 1.5,
+        "Methionin": 0.5
+      },
+      "harga_2016_rp_per_kg": 5000,
+      "batasan_nama": "Tepung Bulu",
+      "batasan_maks_persen": {
+        "Layer_Starter": 2.0,
+        "Layer_Grower": 5.0,
+        "Layer_Finisher": 5.0,
+        "Broiler_Starter": 5.0,
+        "Broiler_Finisher": 5.0,
+        "Bibit_Breeder": 2.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "tepung_daging",
+      "nama": "TEPUNG DAGING",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2957,
+        "PK": 57,
+        "LK": 12,
+        "SK": 0,
+        "Ca": 5.96,
+        "P": 0,
+        "Lisin": 0,
+        "Methionin": 3.31
+      },
+      "harga_2016_rp_per_kg": 5000,
+      "batasan_nama": "Tepung Daging",
+      "batasan_maks_persen": {
+        "Layer_Starter": 7.0,
+        "Layer_Grower": 7.0,
+        "Layer_Finisher": 7.0,
+        "Broiler_Starter": 7.0,
+        "Broiler_Finisher": 7.0,
+        "Bibit_Breeder": 7.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "SK",
+        "P",
+        "Lisin"
+      ]
+    },
+    {
+      "id": "tepung_darah",
+      "nama": "TEPUNG DARAH",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2750,
+        "PK": 85,
+        "LK": 1.1,
+        "SK": 1,
+        "Ca": 0.15,
+        "P": 0.32,
+        "Lisin": 6.9,
+        "Methionin": 6.9
+      },
+      "harga_2016_rp_per_kg": 5000,
+      "batasan_nama": "Tepung Darah",
+      "batasan_maks_persen": {
+        "Layer_Starter": 2.0,
+        "Layer_Grower": 2.0,
+        "Layer_Finisher": 2.0,
+        "Broiler_Starter": 2.0,
+        "Broiler_Finisher": 2.0,
+        "Bibit_Breeder": 2.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    },
+    {
+      "id": "tepung_lamtoro",
+      "nama": "TEPUNG LAMTORO",
+      "kategori": "protein",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 828,
+        "PK": 18.9,
+        "LK": 5.9,
+        "SK": 16.3,
+        "Ca": 0.05,
+        "P": 0,
+        "Lisin": 0,
+        "Methionin": 0.55
+      },
+      "harga_2016_rp_per_kg": 4500,
+      "batasan_nama": "Tepung Daun Lamtoro",
+      "batasan_maks_persen": {
+        "Layer_Starter": 5.0,
+        "Layer_Grower": 5.0,
+        "Layer_Finisher": 5.0,
+        "Broiler_Starter": 5.0,
+        "Broiler_Finisher": 5.0,
+        "Bibit_Breeder": 2.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "P",
+        "Lisin"
+      ]
+    },
+    {
+      "id": "kapur",
+      "nama": "KAPUR",
+      "kategori": "mineral",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 0,
+        "PK": 0,
+        "LK": 0,
+        "SK": 0,
+        "Ca": 38,
+        "P": 0,
+        "Lisin": 0,
+        "Methionin": 0
+      },
+      "harga_2016_rp_per_kg": 1100,
+      "batasan_nama": "Kapur",
+      "batasan_maks_persen": {
+        "Layer_Starter": 5.0,
+        "Layer_Grower": 5.0,
+        "Layer_Finisher": 5.0,
+        "Broiler_Starter": 5.0,
+        "Broiler_Finisher": 5.0,
+        "Bibit_Breeder": 5.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "EM",
+        "PK",
+        "LK",
+        "SK",
+        "P",
+        "Lisin",
+        "Methionin"
+      ]
+    },
+    {
+      "id": "kulit_kerang",
+      "nama": "KULIT KERANG",
+      "kategori": "mineral",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 0,
+        "PK": 0,
+        "LK": 0,
+        "SK": 0,
+        "Ca": 37,
+        "P": 0,
+        "Lisin": 0,
+        "Methionin": 0
+      },
+      "harga_2016_rp_per_kg": 6000,
+      "batasan_nama": "Kulit Kerang",
+      "batasan_maks_persen": {
+        "Layer_Starter": 2.0,
+        "Layer_Grower": 2.0,
+        "Layer_Finisher": 4.0,
+        "Broiler_Starter": 1.0,
+        "Broiler_Finisher": 1.0,
+        "Bibit_Breeder": 2.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "EM",
+        "PK",
+        "LK",
+        "SK",
+        "P",
+        "Lisin",
+        "Methionin"
+      ]
+    },
+    {
+      "id": "tepung_tulang",
+      "nama": "TEPUNG TULANG",
+      "kategori": "mineral",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 818,
+        "PK": 12,
+        "LK": 3,
+        "SK": 2.3,
+        "Ca": 26,
+        "P": 13.5,
+        "Lisin": 0,
+        "Methionin": 1.27
+      },
+      "harga_2016_rp_per_kg": 6000,
+      "batasan_nama": "Tepung Tulang",
+      "batasan_maks_persen": {
+        "Layer_Starter": 5.0,
+        "Layer_Grower": 5.0,
+        "Layer_Finisher": 5.0,
+        "Broiler_Starter": 5.0,
+        "Broiler_Finisher": 5.0,
+        "Bibit_Breeder": 5.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "Lisin"
+      ]
+    },
+    {
+      "id": "minyak_ikan",
+      "nama": "MINYAK IKAN",
+      "kategori": "energi",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 8450,
+        "PK": 0,
+        "LK": 100,
+        "SK": 0,
+        "Ca": 0,
+        "P": 0,
+        "Lisin": 0,
+        "Methionin": 0
+      },
+      "harga_2016_rp_per_kg": 150000,
+      "batasan_nama": "Minyak",
+      "batasan_maks_persen": {
+        "Layer_Starter": 5.0,
+        "Layer_Grower": 5.0,
+        "Layer_Finisher": 5.0,
+        "Broiler_Starter": 5.0,
+        "Broiler_Finisher": 5.0,
+        "Bibit_Breeder": 5.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "PK",
+        "SK",
+        "Ca",
+        "P",
+        "Lisin",
+        "Methionin"
+      ]
+    },
+    {
+      "id": "minyak_kelapa",
+      "nama": "MINYAK KELAPA",
+      "kategori": "energi",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 8600,
+        "PK": 0,
+        "LK": 100,
+        "SK": 0,
+        "Ca": 0,
+        "P": 0,
+        "Lisin": 0,
+        "Methionin": 0
+      },
+      "harga_2016_rp_per_kg": 11500,
+      "batasan_nama": "Minyak",
+      "batasan_maks_persen": {
+        "Layer_Starter": 5.0,
+        "Layer_Grower": 5.0,
+        "Layer_Finisher": 5.0,
+        "Broiler_Starter": 5.0,
+        "Broiler_Finisher": 5.0,
+        "Bibit_Breeder": 5.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "PK",
+        "SK",
+        "Ca",
+        "P",
+        "Lisin",
+        "Methionin"
+      ]
+    },
+    {
+      "id": "minyak_tumbuhan",
+      "nama": "MINYAK TUMBUHAN",
+      "kategori": "energi",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 8950,
+        "PK": 0,
+        "LK": 100,
+        "SK": 0,
+        "Ca": 0,
+        "P": 0,
+        "Lisin": 0,
+        "Methionin": 0
+      },
+      "harga_2016_rp_per_kg": 12000,
+      "batasan_nama": "Minyak",
+      "batasan_maks_persen": {
+        "Layer_Starter": 5.0,
+        "Layer_Grower": 5.0,
+        "Layer_Finisher": 5.0,
+        "Broiler_Starter": 5.0,
+        "Broiler_Finisher": 5.0,
+        "Bibit_Breeder": 5.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": [
+        "PK",
+        "SK",
+        "Ca",
+        "P",
+        "Lisin",
+        "Methionin"
+      ]
+    },
+    {
+      "id": "tepung_gaplek",
+      "nama": "TEPUNG GAPLEK",
+      "kategori": "energi",
+      "basis_ukur": "as_fed",
+      "komposisi": {
+        "EM": 2970,
+        "PK": 1.5,
+        "LK": 0.7,
+        "SK": 0.9,
+        "Ca": 0.18,
+        "P": 0.09,
+        "Lisin": 0.03,
+        "Methionin": 0.09
+      },
+      "harga_2016_rp_per_kg": 2400,
+      "batasan_nama": "Tepung Gaplek",
+      "batasan_maks_persen": {
+        "Layer_Starter": 8.0,
+        "Layer_Grower": 10.0,
+        "Layer_Finisher": 10.0,
+        "Broiler_Starter": 8.0,
+        "Broiler_Finisher": 10.0,
+        "Bibit_Breeder": 10.0
+      },
+      "status_verifikasi": "PERLU_VERIFIKASI",
+      "param_bernilai_0_cek": []
+    }
+  ],
+  "gap": {
+    "bahan_tanpa_batasan_pakai_default": [
+      "DEDAK JAGUNG",
+      "FOKA",
+      "HIDROLISIS I. RUMEN",
+      "SUSU SKIM"
+    ],
+    "bahan_di_batasan_tanpa_komposisi_belum_dipakai_V1": [
+      "Bekatul",
+      "Lemak Hewan",
+      "Tetes",
+      "Limbah Udang",
+      "Ubi Jalar",
+      "Bungkil Biji Kakao"
+    ]
+  }
+}

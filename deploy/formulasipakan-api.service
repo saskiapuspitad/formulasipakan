@@ -1,0 +1,23 @@
+[Unit]
+Description=Sistem Formulasi Pakan - API (Node.js terpisah)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=formulasipakan
+Group=formulasipakan
+WorkingDirectory=/opt/formulasipakan/server
+EnvironmentFile=/opt/formulasipakan/server/.env
+# Node.js khusus aplikasi ini (tidak memakai/mengubah Node.js sistem)
+ExecStart=/opt/formulasipakan/node/bin/node src/index.js
+Restart=on-failure
+RestartSec=3
+MemoryMax=512M
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
