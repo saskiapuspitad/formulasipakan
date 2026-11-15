@@ -1,6 +1,6 @@
 import type { FormulasiResult } from "./engine/types";
 
-export type Langkah = "ternak" | "periode" | "bahan" | "hasil" | "tersimpan" | "banding" | "akun" | "admin";
+export type Langkah = "ternak" | "periode" | "bahan" | "hasil" | "tersimpan" | "banding" | "akun" | "admin" | "kebutuhan";
 
 export interface ItemState {
   pilih: boolean;
