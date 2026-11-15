@@ -336,7 +336,8 @@ export function HasilView({
       )}
 
       {/* 4. RINCIAN EVALUASI NUTRISI (TEKNIS STANDAR) */}
-      <details className="rounded-xl bg-white border border-slate-200 p-3.5 text-xs text-slate-600 shadow-2xs">
+      {/* Terbuka otomatis bila formula belum layak, agar parameter yang gagal langsung terlihat */}
+      <details open={hasil.status !== "LAYAK"} className="rounded-xl bg-white border border-slate-200 p-3.5 text-xs text-slate-600 shadow-2xs">
         <summary className="cursor-pointer font-bold text-slate-800 hover:text-emerald-800 flex items-center justify-between select-none">
           <span>Evaluasi Nutrisi Terhitung (8 Parameter Standar)</span>
           <span className="text-slate-400 text-xs font-normal">Buka Rincian ▾</span>

@@ -37,6 +37,8 @@ export interface Periode {
   tujuan: "grow" | "layer";
   stage: string;
   kebutuhan: Record<ParamId, KebutuhanParam>;
+  /** Sumber acuan kebutuhan, mis. "SNI 8173.2:2015" (diisi admin). */
+  sumber?: string | null;
 }
 
 /** Kolom tabel batasan pada file pengguna. */

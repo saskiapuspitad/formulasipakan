@@ -40,6 +40,7 @@ const skemaKebutuhanParam = z
 
 const skemaPeriode = z.object({
   nama: z.string().trim().min(2).max(120),
+  sumber: z.string().trim().max(160).optional(),
   kebutuhan: z.object(Object.fromEntries(PARAM.map((p) => [p, skemaKebutuhanParam]))),
 });
 
@@ -175,6 +176,7 @@ export function ruteAdmin(ctx) {
       const lama = (await db.query("SELECT data FROM periode WHERE id = $1 FOR UPDATE", [req.params.id])).rows[0];
       if (!lama) throw new GalatApi(404, "Periode tidak ditemukan.");
       const data = { ...lama.data, nama: b.nama, kebutuhan: rapikanKebutuhan(b.kebutuhan) };
+      if (b.sumber !== undefined) data.sumber = b.sumber || null;
       await db.query("UPDATE periode SET data = $2, diubah_pada = now(), diubah_oleh = $3 WHERE id = $1", [
         req.params.id, JSON.stringify(data), req.pengguna.id,
       ]);

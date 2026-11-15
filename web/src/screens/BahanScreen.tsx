@@ -3,6 +3,7 @@ import type { Bahan, Periode, FormulasiResult, ItemPilihan } from "../engine/typ
 import type { ItemState } from "../types";
 import type { Master } from "../engine/data";
 import { Seksi, Isian, IsianHarga, Tombol, IkonSampah } from "../ui";
+import { TargetGizi } from "../components/TargetGizi";
 import { ModeKonsentrat } from "./ModeKonsentrat";
 
 const KATEGORI_TABS = [
@@ -75,6 +76,9 @@ export function BahanScreen({
       sub={`${periode.jenis_ternak} · Fase ${periode.nama}`}
       kembali={onKembali}
     >
+      {/* 0. Target gizi fase terpilih (acuan perhitungan) */}
+      <TargetGizi periode={periode} parameter={master.parameter} />
+
       {/* 1. Pengaturan Ukuran Batch */}
       <div className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-2xs">
         <div className="flex items-center justify-between mb-1.5">

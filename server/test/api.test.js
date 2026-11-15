@@ -182,7 +182,7 @@ test("admin: hak akses, harga acuan, edit bahan & kebutuhan, statistik, nonaktif
   const per = m.body.data.periode[0];
   const keb = structuredClone(per.kebutuhan);
   keb.PK = { jenis: "min", min: 23, maks: null };
-  assert.equal((await adm.put(`/api/admin/periode/${per.id}`).send({ nama: per.nama, kebutuhan: keb })).status, 200);
+  assert.equal((await adm.put(`/api/admin/periode/${per.id}`).send({ nama: per.nama, sumber: "SNI 8173.1:2015", kebutuhan: keb })).status, 200);
   const salah = structuredClone(keb);
   salah.Ca = { jenis: "rentang", min: 1.2, maks: 0.9 };
   const rs = await adm.put(`/api/admin/periode/${per.id}`).send({ nama: per.nama, kebutuhan: salah });
@@ -192,6 +192,7 @@ test("admin: hak akses, harga acuan, edit bahan & kebutuhan, statistik, nonaktif
   const p4 = m4.body.data.periode.find((p) => p.id === per.id);
   assert.equal(p4.kebutuhan.PK.min, 23);
   assert.equal(p4.kebutuhan.PK.raw, "23");
+  assert.equal(p4.sumber, "SNI 8173.1:2015");
 
   // Statistik & daftar pengguna
   const st = await adm.get("/api/admin/statistik");

@@ -567,7 +567,7 @@ type FormKeb = Record<ParamId, { jenis: Arah; min: string; maks: string }>;
 
 function TabKebutuhan({ master, onTersimpan }: { master: MasterData; onTersimpan: () => void }) {
   const [ternak, setTernak] = useState(master.ternak[0]?.nama ?? "");
-  const [edit, setEdit] = useState<{ periode: Periode; nama: string; keb: FormKeb } | null>(null);
+  const [edit, setEdit] = useState<{ periode: Periode; nama: string; sumber: string; keb: FormKeb } | null>(null);
   const [pesan, setPesan] = useState<{ ok: boolean; teks: string } | null>(null);
   const [proses, setProses] = useState(false);
   const daftar = useMemo(() => master.periode.filter((x) => x.jenis_ternak === ternak), [master, ternak]);
@@ -581,6 +581,7 @@ function TabKebutuhan({ master, onTersimpan }: { master: MasterData; onTersimpan
     setEdit({
       periode: per,
       nama: per.nama,
+      sumber: per.sumber ?? "",
       keb: Object.fromEntries(
         PARAM.map((k) => [k, { jenis: per.kebutuhan[k]?.jenis ?? "min", min: teks(per.kebutuhan[k]?.min), maks: teks(per.kebutuhan[k]?.maks) }])
       ) as FormKeb,
@@ -602,7 +603,7 @@ function TabKebutuhan({ master, onTersimpan }: { master: MasterData; onTersimpan
     }
     setProses(true);
     try {
-      await api(`/admin/periode/${encodeURIComponent(edit.periode.id)}`, { metode: "PUT", body: { nama: edit.nama.trim(), kebutuhan } });
+      await api(`/admin/periode/${encodeURIComponent(edit.periode.id)}`, { metode: "PUT", body: { nama: edit.nama.trim(), sumber: edit.sumber.trim(), kebutuhan } });
       setPesan({ ok: true, teks: `Kebutuhan "${edit.nama}" disimpan.` });
       setEdit(null);
       onTersimpan();
@@ -620,10 +621,16 @@ function TabKebutuhan({ master, onTersimpan }: { master: MasterData; onTersimpan
           <p className="text-sm font-bold text-slate-800">Ubah kebutuhan: {edit.periode.jenis_ternak}</p>
           <button type="button" onClick={() => setEdit(null)} className="text-sm text-slate-500 hover:text-slate-800 cursor-pointer">Batal</button>
         </div>
-        <label className="block max-w-md">
-          <span className="text-xs font-semibold text-slate-600">Nama periode</span>
-          <input value={edit.nama} onChange={(e) => setEdit({ ...edit, nama: e.target.value })} className={kelasInput + " mt-1"} />
-        </label>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <label className="block">
+            <span className="text-xs font-semibold text-slate-600">Nama periode</span>
+            <input value={edit.nama} onChange={(e) => setEdit({ ...edit, nama: e.target.value })} className={kelasInput + " mt-1"} />
+          </label>
+          <label className="block">
+            <span className="text-xs font-semibold text-slate-600">Sumber acuan (tampil ke peternak)</span>
+            <input value={edit.sumber} onChange={(e) => setEdit({ ...edit, sumber: e.target.value })} placeholder="Contoh: SNI 8173.2:2015" className={kelasInput + " mt-1"} />
+          </label>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[520px]">
             <thead className="text-xs text-slate-500">
@@ -687,11 +694,12 @@ function TabKebutuhan({ master, onTersimpan }: { master: MasterData; onTersimpan
       </div>
       <Pesan p={pesan} />
       <div className={`${kartu} p-0 overflow-x-auto`}>
-        <table className="w-full text-xs min-w-[760px]">
+        <table className="w-full text-xs min-w-[860px]">
           <thead className="bg-slate-50 text-slate-500">
             <tr>
               <th className="text-left font-semibold px-3 py-2">Periode</th>
               {PARAM.map((k) => <th key={k} className="text-right font-semibold px-2 py-2">{k}</th>)}
+              <th className="text-left font-semibold px-3 py-2">Sumber</th>
               <th className="px-3 py-2" />
             </tr>
           </thead>
@@ -700,6 +708,7 @@ function TabKebutuhan({ master, onTersimpan }: { master: MasterData; onTersimpan
               <tr key={per.id} className="border-t border-slate-100">
                 <td className="px-3 py-2 font-medium text-slate-800 text-sm">{per.nama}</td>
                 {PARAM.map((k) => <td key={k} className="text-right px-2 py-2 tabular-nums whitespace-nowrap">{per.kebutuhan[k] ? ringkas(per.kebutuhan[k]) : "—"}</td>)}
+                <td className={`px-3 py-2 whitespace-nowrap ${per.sumber ? "text-slate-700" : "text-slate-400"}`}>{per.sumber || "Tabel 2026"}</td>
                 <td className="px-3 py-2 text-right">
                   <button type="button" onClick={() => buka(per)} className="font-semibold text-emerald-700 hover:underline cursor-pointer">Ubah</button>
                 </td>
