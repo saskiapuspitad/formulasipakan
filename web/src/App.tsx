@@ -778,6 +778,27 @@ export default function App() {
       {/* 1. LANGKAH PEMILIHAN KOMODITAS TERNAK */}
       {langkah === "ternak" && (
         <Seksi judul="Pilih Komoditas Ternak Unggas">
+          <button
+            type="button"
+            onClick={() => {
+              setTernakKebutuhan(undefined);
+              bukaLangkah("kebutuhan");
+            }}
+            className="w-full text-left rounded-xl p-3.5 mb-3 border border-emerald-200 bg-emerald-50/60 hover:border-emerald-600 active:scale-[.99] transition cursor-pointer flex items-center gap-3 group"
+          >
+            <svg className="w-8 h-8 shrink-0 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18M9 6v12M4 6h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z" />
+            </svg>
+            <div className="flex-1 min-w-0">
+              <span className="block text-sm font-bold text-emerald-900">Tabel Kebutuhan Nutrisi</span>
+              <span className="block text-xs text-emerald-900/70 leading-snug">
+                Kebutuhan gizi setiap jenis unggas per fase · Kebutuhan Nutrisi Ternak Unggas 2026
+              </span>
+            </div>
+            <svg className="w-5 h-5 text-emerald-400 group-hover:text-emerald-700 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
           <div className="grid gap-2.5">
             {master.data.ternak.map((t) => {
               const info = KATEGORI_TERNAK_INFO[t.nama] ?? { kategori: "Unggas", desc: "Formulasi nutrisi standar" };
@@ -806,27 +827,6 @@ export default function App() {
             })}
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              setTernakKebutuhan(undefined);
-              bukaLangkah("kebutuhan");
-            }}
-            className="w-full text-left rounded-xl p-3.5 border border-emerald-200 bg-emerald-50/60 hover:border-emerald-600 active:scale-[.99] transition cursor-pointer flex items-center gap-3 group"
-          >
-            <svg className="w-8 h-8 shrink-0 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18M9 6v12M4 6h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z" />
-            </svg>
-            <div className="flex-1 min-w-0">
-              <span className="block text-sm font-bold text-emerald-900">Tabel Kebutuhan Nutrisi</span>
-              <span className="block text-xs text-emerald-900/70 leading-snug">
-                Kebutuhan gizi setiap jenis unggas per fase · Kebutuhan Nutrisi Ternak Unggas 2026
-              </span>
-            </div>
-            <svg className="w-5 h-5 text-emerald-400 group-hover:text-emerald-700 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
         </Seksi>
       )}
 
