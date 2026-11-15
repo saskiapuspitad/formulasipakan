@@ -267,7 +267,7 @@ export const PRESET_RASIO_LIST: PresetRasio[] = [
   {
     id: "broiler_starter",
     nama: "Formula Starter Broiler (50 : 40 : 10)",
-    deskripsi: "50% Jagung + 40% Konsentrat + 10% Dedak. Protein tinggi untuk anak ayam pedaging awal tumbuh (1–21 hari).",
+    deskripsi: "50% Jagung + 40% Konsentrat + 10% Dedak. Protein tinggi untuk anak ayam pedaging awal tumbuh (1-21 hari).",
     persenJagung: 50,
     persenKonsentrat: 40,
     persenDedak: 10,
@@ -299,7 +299,7 @@ export const PRESET_RASIO_LIST: PresetRasio[] = [
   {
     id: "itik_starter",
     nama: "Formula Starter Itik (50 : 40 : 10)",
-    deskripsi: "50% Jagung + 40% Konsentrat + 10% Dedak. Protein tinggi untuk anak itik / meri fase awal tumbuh (0–3 minggu).",
+    deskripsi: "50% Jagung + 40% Konsentrat + 10% Dedak. Protein tinggi untuk anak itik / meri fase awal tumbuh (0-3 minggu).",
     persenJagung: 50,
     persenKonsentrat: 40,
     persenDedak: 10,
@@ -387,7 +387,7 @@ export const PRESET_RASIO_LIST: PresetRasio[] = [
   {
     id: "kampung_starter",
     nama: "Formula Starter Ayam Kampung (50 : 40 : 10)",
-    deskripsi: "50% Jagung + 40% Konsentrat + 10% Dedak. Nutrisi tinggi untuk anak ayam kampung / KUB awal tumbuh (0–4 minggu).",
+    deskripsi: "50% Jagung + 40% Konsentrat + 10% Dedak. Nutrisi tinggi untuk anak ayam kampung / KUB awal tumbuh (0-4 minggu).",
     persenJagung: 50,
     persenKonsentrat: 40,
     persenDedak: 10,

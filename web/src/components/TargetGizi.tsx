@@ -12,14 +12,14 @@ const SUMBER_BAWAAN = "Tabel Kebutuhan Nutrisi Ternak Unggas 2026";
 const angka = (v: number, satuan: string) =>
   v.toLocaleString("id-ID", { maximumFractionDigits: satuan === "kkal/kg" ? 0 : 2 });
 
-/** Teks target sesuai cara perhitungan: min → "≥ a", maks → "≤ b", rentang → "a – b". */
+/** Teks target sesuai cara perhitungan: min → "≥ a", maks → "≤ b", rentang → "a - b". */
 export function teksTarget(k: KebutuhanParam | undefined, satuan: string): string {
-  if (!k) return "–";
+  if (!k) return "-";
   const s = satuan === "%" ? "%" : ` ${satuan}`;
   if (k.jenis === "min" && k.min != null) return `≥ ${angka(k.min, satuan)}${s}`;
   if (k.jenis === "maks" && k.maks != null) return `≤ ${angka(k.maks, satuan)}${s}`;
-  if (k.jenis === "rentang" && k.min != null && k.maks != null) return `${angka(k.min, satuan)} – ${angka(k.maks, satuan)}${s}`;
-  return "–";
+  if (k.jenis === "rentang" && k.min != null && k.maks != null) return `${angka(k.min, satuan)} - ${angka(k.maks, satuan)}${s}`;
+  return "-";
 }
 
 export function TargetGizi({ periode, parameter }: { periode: Periode; parameter: Parameter[] }) {
@@ -68,7 +68,7 @@ export function TargetGizi({ periode, parameter }: { periode: Periode; parameter
             </tbody>
           </table>
           <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
-            ≥ minimum · ≤ maksimum · a – b rentang. Perhitungan menambah margin keamanan ±1% dari batas; bila
+            ≥ minimum · ≤ maksimum · a - b rentang. Perhitungan menambah margin keamanan ±1% dari batas; bila
             bahan tidak memungkinkan, margin dilepas.
           </p>
           <p className="text-[11px] text-slate-600 mt-1">

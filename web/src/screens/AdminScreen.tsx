@@ -574,7 +574,7 @@ function TabKebutuhan({ master, onTersimpan }: { master: MasterData; onTersimpan
   const param = (k: ParamId) => master.parameter.find((x) => x.id === k);
 
   const ringkas = (k: KebutuhanParam) =>
-    k.jenis === "rentang" ? `${teks(k.min)}–${teks(k.maks)}` : k.jenis === "min" ? `≥ ${teks(k.min)}` : `≤ ${teks(k.maks)}`;
+    k.jenis === "rentang" ? `${teks(k.min)}-${teks(k.maks)}` : k.jenis === "min" ? `≥ ${teks(k.min)}` : `≤ ${teks(k.maks)}`;
 
   function buka(per: Periode) {
     setPesan(null);

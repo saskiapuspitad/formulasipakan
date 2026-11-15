@@ -252,11 +252,11 @@ function solusiPraktis(p: ParamId, arah: "kurang" | "lebih"): string {
       case "PK":
         return "Wajib tambahkan minimal 1 bahan sumber protein: Bungkil Kedelai, Konsentrat Pabrikan, atau Tepung Ikan.";
       case "EM":
-        return "Naikkan porsi Jagung Kuning atau tambahkan 1–2% Minyak Nabati/Minyak Kelapa.";
+        return "Naikkan porsi Jagung Kuning atau tambahkan 1-2% Minyak Nabati/Minyak Kelapa.";
       case "Ca":
-        return "Tambahkan 2–5% Kapur (Tepung Batu) atau Tepung Kulit Kerang.";
+        return "Tambahkan 2-5% Kapur (Tepung Batu) atau Tepung Kulit Kerang.";
       case "P":
-        return "Tambahkan 1–2% Tepung Tulang atau MBM (Meat and Bone Meal).";
+        return "Tambahkan 1-2% Tepung Tulang atau MBM (Meat and Bone Meal).";
       case "Lisin":
       case "Methionin":
         return "Tambahkan Tepung Ikan atau Konsentrat Pabrikan untuk melengkapi asam amino.";
@@ -266,7 +266,7 @@ function solusiPraktis(p: ParamId, arah: "kurang" | "lebih"): string {
   } else {
     switch (p) {
       case "SK":
-        return "Kurangi persentase Dedak Padi atau Pollard ke maksimal 10–15% dari total campuran.";
+        return "Kurangi persentase Dedak Padi atau Pollard ke maksimal 10-15% dari total campuran.";
       case "LK":
         return "Kurangi penggunaan minyak nabati atau bahan berlemak tinggi.";
       default:

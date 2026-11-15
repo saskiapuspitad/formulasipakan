@@ -149,7 +149,7 @@ describe("Sistem Formulasi Pakan online", () => {
     // Broiler Pre-Starter (baris pertama Excel): EM 2950, SK 3-5 (apa adanya, bukan "≤ 5")
     expect(screen.getByRole("tab", { name: "Ayam Pedaging (Broiler)", selected: true })).toBeTruthy();
     expect(tabel().getAllByText("≥ 2.950").length).toBe(1);
-    expect(tabel().getAllByText("3 – 5").length).toBe(3);
+    expect(tabel().getAllByText("3 - 5").length).toBe(3);
     // Kalkun: Ca hanya nilai minimum di Excel
     await user.click(screen.getByRole("tab", { name: "Kalkun" }));
     expect(tabel().getByText("≥ 1,2")).toBeTruthy();

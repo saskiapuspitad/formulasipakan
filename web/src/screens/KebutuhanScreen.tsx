@@ -27,13 +27,13 @@ const PARAM: { id: ParamKebutuhan; nama: string; satuan: string }[] = [
 const rapi = (s: string) => s.replace(/\s+/g, " ").trim();
 const angka = (v: number) => v.toLocaleString("id-ID", { maximumFractionDigits: 2 });
 
-/** min & maks → "a – b"; hanya min → "≥ a"; hanya maks → "≤ b". */
+/** min & maks → "a - b"; hanya min → "≥ a"; hanya maks → "≤ b". */
 function teksNilai(v: { min: number | null; maks: number | null } | undefined): string {
-  if (!v) return "–";
-  if (v.min != null && v.maks != null) return `${angka(v.min)} – ${angka(v.maks)}`;
+  if (!v) return "-";
+  if (v.min != null && v.maks != null) return `${angka(v.min)} - ${angka(v.maks)}`;
   if (v.min != null) return `≥ ${angka(v.min)}`;
   if (v.maks != null) return `≤ ${angka(v.maks)}`;
-  return "–";
+  return "-";
 }
 
 /** "Ayam Pedaging Periode Pre-Starter" → "Pre-Starter"; "Ayam Kampung Grower" → "Grower". */
@@ -138,7 +138,7 @@ export function KebutuhanScreen(p: {
                           Racik →
                         </button>
                       ) : (
-                        <span className="text-slate-300">–</span>
+                        <span className="text-slate-300">-</span>
                       )}
                     </td>
                   );
@@ -151,7 +151,7 @@ export function KebutuhanScreen(p: {
 
       <div className="text-[11px] text-slate-600 leading-relaxed space-y-1">
         <p>
-          <span className="font-semibold">a – b</span> = kisaran (minimum – maksimum) ·{" "}
+          <span className="font-semibold">a - b</span> = kisaran (minimum - maksimum) ·{" "}
           <span className="font-semibold">≥ a</span> = minimum. Energi dalam kkal/kg, lainnya dalam % pakan.
         </p>
         <p>
