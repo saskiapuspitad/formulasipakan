@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import type { Periode, FormulasiResult, ItemPilihan } from "../engine/types";
+import type { Bahan, Periode, FormulasiResult, ItemPilihan, ParamId } from "../engine/types";
 import { Master } from "../engine/data";
 import {
   getRecommendedConcentrateId,
@@ -10,6 +10,13 @@ import {
 import { rupiah, Tombol, IsianHarga } from "../ui";
 import { namaBahan, angka, teksHarga } from "../utils/teks";
 import { parseAngka } from "../utils/number";
+import { KandunganBahan, TombolKandungan, URUTAN_GIZI, teksGizi } from "../components/KandunganBahan";
+
+/** Konsentrat dengan kandungan dari label karung (menggantikan angka bawaan untuk satu perhitungan). */
+export type KonsentratLabel = { bahan: Bahan; catatan: string };
+
+const keTeks = (k: Partial<Record<ParamId, number | null>> | undefined) =>
+  Object.fromEntries(URUTAN_GIZI.map((g) => [g.id, k?.[g.id] == null ? "" : angka(k[g.id] as number, 3)])) as Record<ParamId, string>;
 
 export function ModeKonsentrat({
   periode,
@@ -22,7 +29,7 @@ export function ModeKonsentrat({
   batchKg: number;
   master: Master;
   onSelesai: (hasil: FormulasiResult) => void;
-  onJalankanSolver: (items: ItemPilihan[]) => void;
+  onJalankanSolver: (items: ItemPilihan[], label?: KonsentratLabel) => void;
 }) {
   const isLayer =
     periode.tujuan === "layer" ||
@@ -44,6 +51,20 @@ export function ModeKonsentrat({
   const [konsentratId, setKonsentratId] = useState(() =>
     getRecommendedConcentrateId(periode.jenis_ternak, isLayer)
   );
+
+  // Kandungan konsentrat: bawaan (perkiraan) atau diisi peternak dari label karung
+  const konsBawaan = useMemo(
+    () => konsentratTersedia.find((k) => k.id === konsentratId) ?? master.bahan(konsentratId),
+    [konsentratTersedia, konsentratId, master]
+  );
+  const [labelKons, setLabelKons] = useState<Record<ParamId, string>>(() => keTeks(konsBawaan?.komposisi));
+  useEffect(() => setLabelKons(keTeks(konsBawaan?.komposisi)), [konsBawaan]);
+  const komposisiLabel = Object.fromEntries(
+    URUTAN_GIZI.map((g) => [g.id, labelKons[g.id]?.trim() ? parseAngka(labelKons[g.id]) : (konsBawaan?.komposisi[g.id] ?? null)])
+  ) as Record<ParamId, number | null>;
+  const paramDiubah = URUTAN_GIZI.filter((g) => Math.abs((komposisiLabel[g.id] ?? 0) - (konsBawaan?.komposisi[g.id] ?? 0)) > 1e-9);
+  const pakaiLabel = paramDiubah.length > 0 && !!konsBawaan;
+  const [giziTerbuka, setGiziTerbuka] = useState<string | null>(null);
 
   // Harga masing-masing bahan
   const [hargaKonsentrat, setHargaKonsentrat] = useState("9.500");
@@ -132,7 +153,16 @@ export function ModeKonsentrat({
     hargaKapur,
   ]);
 
+  function labelKonsentrat(): KonsentratLabel | undefined {
+    if (!pakaiLabel || !konsBawaan) return undefined;
+    return {
+      bahan: { ...konsBawaan, komposisi: { ...konsBawaan.komposisi, ...komposisiLabel } },
+      catatan: `Kandungan konsentrat diisi dari label: ${paramDiubah.map((g) => `${g.nama.toLowerCase()} ${teksGizi(komposisiLabel[g.id], g.satuan)}`).join(", ")}.`,
+    };
+  }
+
   function prosesHitung() {
+    const label = labelKonsentrat();
     const nHargaKonsentrat = parseAngka(hargaKonsentrat, 0);
     const nHargaJagung = parseAngka(hargaJagung, 0);
     const nHargaDedak = parseAngka(hargaDedak, 0);
@@ -171,7 +201,7 @@ export function ModeKonsentrat({
           batasMaksPersen: 8,
         });
       }
-      onJalankanSolver(items);
+      onJalankanSolver(items, label);
     } else {
       const rasioItems = [
         { bahanId: konsentratId, persen: persenKonsentrat, harga: nHargaKonsentrat },
@@ -182,8 +212,11 @@ export function ModeKonsentrat({
         rasioItems.push({ bahanId: bKapur.id, persen: persenKapur, harga: nHargaKapur });
       }
 
-      const hasil = hitungFormulaDariRasio(master, periode, batchKg, rasioItems);
-      onSelesai(hasil);
+      const m = label
+        ? Master.from({ ...master.data, bahan: master.data.bahan.map((b) => (b.id === label.bahan.id ? label.bahan : b)) })
+        : master;
+      const hasil = hitungFormulaDariRasio(m, periode, batchKg, rasioItems);
+      onSelesai(label ? { ...hasil, catatan: [label.catatan, ...hasil.catatan] } : hasil);
     }
   }
 
@@ -193,14 +226,15 @@ export function ModeKonsentrat({
     const n = nama.replace(/\s*\(.*\)\s*$/, "").trim();
     return n.charAt(0) + n.slice(1).toLowerCase();
   };
-  const barisHarga: { label: string; persen: number; value: string; set: (v: string) => void; ph: string }[] = [
-    { label: "Jagung giling", persen: persenJagung, value: hargaJagung, set: setHargaJagung, ph: "5.500" },
+  const barisHarga: { label: string; persen: number; value: string; set: (v: string) => void; ph: string; bahan?: Bahan }[] = [
+    { label: "Jagung giling", persen: persenJagung, value: hargaJagung, set: setHargaJagung, ph: "5.500", bahan: bJagung },
     { label: "Konsentrat", persen: persenKonsentrat, value: hargaKonsentrat, set: setHargaKonsentrat, ph: "9.500" },
-    { label: "Dedak halus", persen: persenDedak, value: hargaDedak, set: setHargaDedak, ph: "3.500" },
+    { label: "Dedak halus", persen: persenDedak, value: hargaDedak, set: setHargaDedak, ph: "3.500", bahan: bDedak },
   ];
 
   return (
     <div className="space-y-5">
+      <div>
       <label className="block">
         <span className="block text-sm font-medium text-slate-800 mb-1.5">Konsentrat</span>
         <select
@@ -219,6 +253,50 @@ export function ModeKonsentrat({
           ))}
         </select>
       </label>
+      <details className="mt-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 group">
+        <summary className="cursor-pointer select-none text-sm text-slate-700 flex items-center justify-between gap-2">
+          <span>
+            Kandungan gizi konsentrat
+            {pakaiLabel && <span className="text-emerald-800"> (diisi dari label)</span>}
+          </span>
+          <svg className="w-4 h-4 text-slate-400 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </summary>
+        <p className="text-xs text-slate-500 mt-2">
+          Angka bawaan adalah perkiraan. Bila ada, ganti dengan angka dari label karung konsentrat Anda.
+        </p>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2.5">
+          {URUTAN_GIZI.map((g) => (
+            <label key={g.id} className="flex items-center justify-between gap-2 text-sm">
+              <span className="text-slate-600">{g.nama}</span>
+              <span className="flex items-center gap-1">
+                <input
+                  inputMode="decimal"
+                  type="text"
+                  value={labelKons[g.id] ?? ""}
+                  onChange={(e) => setLabelKons((s) => ({ ...s, [g.id]: e.target.value }))}
+                  aria-label={`${g.nama} konsentrat (${g.satuan})`}
+                  className={`w-16 border-b outline-none py-0.5 text-right tabular-nums focus:border-emerald-700 ${
+                    paramDiubah.some((x) => x.id === g.id) ? "border-emerald-700 text-emerald-900 font-medium" : "border-slate-300 text-slate-900"
+                  }`}
+                />
+                <span className="w-11 text-xs text-slate-500">{g.satuan}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+        {pakaiLabel && (
+          <button
+            type="button"
+            onClick={() => setLabelKons(keTeks(konsBawaan?.komposisi))}
+            className="mt-2.5 text-sm text-slate-700 underline underline-offset-2 cursor-pointer"
+          >
+            Kembalikan ke angka bawaan
+          </button>
+        )}
+      </details>
+      </div>
 
       <fieldset>
         <legend className="text-sm font-medium text-slate-800 mb-1.5">
@@ -261,14 +339,26 @@ export function ModeKonsentrat({
         <p className="text-sm font-medium text-slate-800 mb-1.5">Harga per kg di tempat Anda</p>
         <div className="rounded-lg border border-slate-200 bg-white divide-y divide-slate-100">
           {barisHarga.map((b) => (
-            <div key={b.label} className="flex items-center gap-3 px-3.5 py-2.5">
-              <span className="flex-1 min-w-0">
-                <span className="block text-[15px] text-slate-900">{b.label}</span>
-                <span className="block text-xs text-slate-500 tabular-nums">{takaranTeks(b.persen)}</span>
-              </span>
-              <span className="w-40 shrink-0">
-                <IsianHarga label={`Harga ${b.label.toLowerCase()}`} labelTersembunyi value={b.value} onChange={b.set} placeholder={b.ph} />
-              </span>
+            <div key={b.label} className="px-3.5 py-2.5">
+              <div className="flex items-center gap-3">
+                <span className="flex-1 min-w-0">
+                  <span className="flex items-center gap-1 text-[15px] text-slate-900">
+                    {b.label}
+                    {b.bahan && (
+                      <TombolKandungan nama={b.label} buka={giziTerbuka === b.label} onClick={() => setGiziTerbuka((x) => (x === b.label ? null : b.label))} />
+                    )}
+                  </span>
+                  <span className="block text-xs text-slate-500 tabular-nums">{takaranTeks(b.persen)}</span>
+                </span>
+                <span className="w-40 shrink-0">
+                  <IsianHarga label={`Harga ${b.label.toLowerCase()}`} labelTersembunyi value={b.value} onChange={b.set} placeholder={b.ph} />
+                </span>
+              </div>
+              {b.bahan && giziTerbuka === b.label && (
+                <div className="mt-2">
+                  <KandunganBahan komposisi={b.bahan.komposisi} />
+                </div>
+              )}
             </div>
           ))}
           {isLayer && (

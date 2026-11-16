@@ -5,7 +5,8 @@ import type { Master } from "../engine/data";
 import { Seksi, Isian, IsianHarga, Tombol, IkonSampah } from "../ui";
 import { namaBahan, namaFase } from "../utils/teks";
 import { TargetGizi } from "../components/TargetGizi";
-import { ModeKonsentrat } from "./ModeKonsentrat";
+import { ModeKonsentrat, type KonsentratLabel } from "./ModeKonsentrat";
+import { KandunganBahan, TombolKandungan } from "../components/KandunganBahan";
 
 const KATEGORI_TABS = [
   { id: "semua", label: "Semua" },
@@ -53,12 +54,20 @@ export function BahanScreen({
   mode: "konsentrat" | "mandiri";
   onModeChange: (m: "konsentrat" | "mandiri") => void;
   onSelesaiKonsentrat: (hasil: FormulasiResult) => void;
-  onJalankanSolverKonsentrat: (items: ItemPilihan[]) => void;
+  onJalankanSolverKonsentrat: (items: ItemPilihan[], label?: KonsentratLabel) => void;
   onHitungMandiri: () => void;
   onPilihPaketStandar?: () => void;
 }) {
   const [cari, setCari] = useState("");
   const [kategori, setKategori] = useState("semua");
+  const [giziTerbuka, setGiziTerbuka] = useState<Set<string>>(() => new Set());
+  const bukaGizi = (id: string) =>
+    setGiziTerbuka((s) => {
+      const n = new Set(s);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
 
   // Filter daftar bahan untuk Mode Racik Mandiri
   const daftarTampil = useMemo(() => {
@@ -213,7 +222,8 @@ export function BahanScreen({
                 const nama = namaBahan(b.id, b.nama);
                 return (
                   <li key={b.id} className={it.pilih ? "bg-emerald-50/40" : undefined}>
-                    <label className="flex items-center gap-3 px-3.5 py-2.5 cursor-pointer">
+                    <div className="flex items-center pr-1.5">
+                    <label className="flex flex-1 min-w-0 items-center gap-3 pl-3.5 pr-2 py-2.5 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={it.pilih}
@@ -226,6 +236,13 @@ export function BahanScreen({
                       </span>
                       {maksBawaan != null && <span className="shrink-0 text-xs text-slate-500 tabular-nums">maks. {maksBawaan}%</span>}
                     </label>
+                    <TombolKandungan nama={nama} buka={giziTerbuka.has(b.id)} onClick={() => bukaGizi(b.id)} />
+                    </div>
+                    {giziTerbuka.has(b.id) && (
+                      <div className="pl-11 pr-3.5 pb-2.5">
+                        <KandunganBahan komposisi={b.komposisi} />
+                      </div>
+                    )}
 
                     {it.pilih && (
                       <div className="px-3.5 pb-3 pl-11 space-y-2">

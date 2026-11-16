@@ -532,6 +532,7 @@ export function hitungFormulaDariRasio(
       nama: b?.nama ?? it.bahanId,
       persen: persenNorm,
       kg,
+      kandungan: b ? { ...b.komposisi } : undefined,
     });
   }
 

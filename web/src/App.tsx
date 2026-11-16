@@ -33,6 +33,7 @@ import { SimpanFormulaModal } from "./components/SimpanFormulaModal";
 import { HasilView } from "./components/HasilView";
 import { BandingView } from "./components/BandingView";
 import { BahanScreen } from "./screens/BahanScreen";
+import type { KonsentratLabel } from "./screens/ModeKonsentrat";
 import { KONSENTRAT_LIST } from "./engine/concentrates";
 import { parseAngka } from "./utils/number";
 import type { Pengguna } from "./api";
@@ -519,8 +520,11 @@ export default function App() {
     bukaLangkah("hasil");
   }
 
-  async function jalankanSolverKonsentrat(itemsKonsentrat: ItemPilihan[]) {
+  async function jalankanSolverKonsentrat(itemsKonsentrat: ItemPilihan[], label?: KonsentratLabel) {
     if (!master || !periode) return;
+    const m = label
+      ? Master.from({ ...master.data, bahan: master.data.bahan.map((b) => (b.id === label.bahan.id ? label.bahan : b)) })
+      : master;
     const req: FormulasiRequest = {
       periodeId,
       batchKg: parseAngka(batch) || 0,
@@ -531,7 +535,8 @@ export default function App() {
     setHasil(null);
     bukaLangkah("hasil");
     try {
-      const res = await formulasikan(master, req, solver);
+      const hasilLp = await formulasikan(m, req, solver);
+      const res = label ? { ...hasilLp, catatan: [label.catatan, ...hasilLp.catatan] } : hasilLp;
       setHasil(res);
       catatPerhitungan(res, "konsentrat");
     } catch {
@@ -863,6 +868,7 @@ export default function App() {
           {!hitung && hasil && (
             <HasilView
               hasil={hasil}
+              kandunganBahan={(id) => master.bahan(id)?.komposisi}
               ternak={ternak}
               periodeNama={periode?.nama}
               batchKg={Number(batch) || 0}

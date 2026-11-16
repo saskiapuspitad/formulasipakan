@@ -252,7 +252,7 @@ function dampakTernak(p: ParamId, arah: "kurang" | "lebih", jenisTernak: string)
   }
 }
 
-function solusiPraktis(p: ParamId, arah: "kurang" | "lebih"): string {
+export function solusiPraktis(p: ParamId, arah: "kurang" | "lebih"): string {
   if (arah === "kurang") {
     switch (p) {
       case "PK":

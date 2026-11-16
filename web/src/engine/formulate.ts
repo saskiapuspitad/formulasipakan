@@ -9,7 +9,7 @@ import { validasiInput } from "./validation";
 import { bangunModel } from "./model";
 import { bulatkanDanNormalkan } from "./rounding";
 import { evaluasiNutrisi } from "./nutrition";
-import { diagnosaInfeasible } from "./diagnosis";
+import { diagnosaInfeasible, solusiPraktis } from "./diagnosis";
 
 const PRAKTIS = "Angka gizi bahan diambil dari tabel; mutu bahan di lapangan (kadar air, jamur, cara simpan) bisa berbeda. Sebaiknya formula diperiksa ahli nutrisi sebelum dipakai rutin.";
 
@@ -85,7 +85,7 @@ export async function formulasikan(m: Master, req: FormulasiRequest, solver: Sol
     .map((it) => {
       const b = m.bahan(it.bahanId)!;
       const kgv = kg[it.bahanId] ?? 0;
-      return { bahanId: it.bahanId, nama: b.nama, persen: (fracBulat[it.bahanId] ?? 0) * 100, kg: kgv };
+      return { bahanId: it.bahanId, nama: b.nama, persen: (fracBulat[it.bahanId] ?? 0) * 100, kg: kgv, kandungan: { ...b.komposisi } };
     })
     .filter((c) => c.kg > 1e-9)
     .sort((a, b) => b.persen - a.persen);
@@ -109,7 +109,8 @@ export async function formulasikan(m: Master, req: FormulasiRequest, solver: Sol
     status = "TIDAK_LAYAK";
     // masalah dari pelanggaran pasca-pembulatan (maks 3)
     for (const e of evaluasi.filter((x) => x.status === "tidak").slice(0, 3)) {
-      masalah.push({ kode: `${e.param}_LANGGAR`, pesan: e.pesan, saran: "Tinjau bahan/batas terkait parameter ini." });
+      const lebih = e.batasMaks != null && e.nilaiFormula != null && e.nilaiFormula > e.batasMaks;
+      masalah.push({ kode: `${e.param}_LANGGAR`, pesan: e.pesan, saran: solusiPraktis(e.param, lebih ? "lebih" : "kurang") });
     }
   } else if (adaBelum) {
     status = "BELUM_DINILAI";

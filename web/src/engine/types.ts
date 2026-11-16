@@ -124,6 +124,8 @@ export interface KomposisiItem {
   nama: string;
   persen: number;                // %
   kg: number;                    // kg untuk batch ini
+  /** Salinan kandungan gizi bahan saat dihitung, agar formula tersimpan tetap bisa dijelaskan. */
+  kandungan?: Partial<Record<ParamId, number | null>>;
 }
 
 export interface OpsiSubstitusi {
