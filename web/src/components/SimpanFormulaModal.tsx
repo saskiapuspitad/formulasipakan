@@ -21,29 +21,26 @@ export function SimpanFormulaModal({
 
   return (
     <div
-      className="fixed inset-0 z-30 bg-slate-900/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-150"
+      className="fixed inset-0 z-40 bg-slate-900/40 flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={onTutup}
     >
       <div
-        className="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 shadow-xl border border-slate-200"
+        className="bg-white w-full max-w-md rounded-t-xl sm:rounded-xl p-5 shadow-lg" role="dialog" aria-modal="true" aria-labelledby="judul-simpan"
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-base font-bold text-slate-900 mb-1">Simpan Formula Pakan</h2>
-        <p className="text-xs text-slate-500 mb-4">
-          Beri nama agar resep pakan ini mudah ditemukan kembali untuk pencampuran di kandang.
-        </p>
+        <h2 id="judul-simpan" className="text-base font-semibold text-slate-900 mb-4">Simpan formula</h2>
 
         <form onSubmit={onSubmit}>
           <label className="block mb-5">
-            <span className="text-xs font-semibold text-slate-700 block mb-1">Nama Formula / Catatan Batch</span>
+            <span className="text-sm font-medium text-slate-800 block mb-1">Nama formula</span>
             <input
               type="text"
               autoFocus
               value={nama}
               onChange={(e) => setNama(e.target.value)}
-              placeholder="Contoh: Broiler Finisher - Jagung Lokal 55%"
-              className="w-full text-sm rounded-lg border border-slate-300 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 outline-none px-3 py-2 text-slate-800"
+              placeholder="Contoh: Broiler finisher jagung lokal"
+              className="w-full text-[15px] rounded-lg border border-slate-300 focus:border-emerald-700 focus:ring-1 focus:ring-emerald-700 outline-none px-3 py-2.5 text-slate-900"
             />
           </label>
 
@@ -52,7 +49,7 @@ export function SimpanFormulaModal({
               Batal
             </Tombol>
             <Tombol type="submit" disabled={!nama.trim()}>
-              Simpan Formula
+              Simpan
             </Tombol>
           </div>
         </form>

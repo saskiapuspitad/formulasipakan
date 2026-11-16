@@ -7,6 +7,9 @@ import type { EvaluasiParam, ParamId, Periode } from "./types";
 import { Master, PARAM_IDS } from "./data";
 
 const TOL = 1e-6;
+/** Angka gaya Indonesia untuk pesan: 2.234 -> "2,23"; 3008 kkal -> "3.008". */
+const fmt = (v: number, satuan = "") =>
+  v.toLocaleString("id-ID", { maximumFractionDigits: satuan === "kkal/kg" ? 0 : 2 }) + (satuan === "%" ? "%" : satuan ? ` ${satuan}` : "");
 const MARGIN_MENDEKATI = 0.02; // 2% relatif -> "mendekati batas" (perhatian)
 const TOL_REL = 0.002;         // 0.2% relatif -> toleransi pembulatan; di dalam ini BUKAN pelanggaran keras
 
@@ -50,14 +53,14 @@ export function evaluasiNutrisi(
         param: p, nama: meta?.nama ?? p, satuan: meta?.satuan ?? "",
         nilaiFormula: v ?? null, jenis: keb.jenis, batasMin: keb.min, batasMaks: keb.maks,
         selisih: null, status: "belum_dinilai",
-        pesan: `Data ${meta?.nama ?? p} belum lengkap sehingga belum dapat dinilai.`,
+        pesan: `Data ${meta?.nama ?? p} bahan belum lengkap, jadi belum bisa dinilai.`,
       });
       continue;
     }
 
     let status: EvaluasiParam["status"] = "memenuhi";
     let selisih: number | null = null;
-    let pesan = `${meta?.nama ?? p} terpenuhi.`;
+    let pesan = `${meta?.nama ?? p} sesuai.`;
 
     // (A) Cek batas minimum
     if (keb.min != null) {
@@ -74,17 +77,17 @@ export function evaluasiNutrisi(
 
         if (isLKToleran || isEMToleran || isPKToleranKecil || isCaToleranKecil || isPToleranKecil) {
           status = "mendekati";
-          pesan = `${meta?.nama ?? p} sedikit di bawah standar (${v.toFixed(2)} ${meta?.satuan ?? ""}), namun dalam batas toleransi aman pembulatan.`;
+          pesan = `${meta?.nama ?? p} sedikit kurang (${fmt(v, meta?.satuan)}, minimum ${fmt(keb.min, meta?.satuan)}).`;
         } else {
           status = "tidak";
-          pesan = `${meta?.nama ?? p} masih kurang ${Math.abs(d).toFixed(2)} ${meta?.satuan ?? ""}.`;
+          pesan = `${meta?.nama ?? p} kurang ${fmt(Math.abs(d), meta?.satuan)}.`;
         }
       } else if (d < 0) {
         status = "mendekati";
-        pesan = `${meta?.nama ?? p} pas di ambang minimum (dalam toleransi pembulatan).`;
+        pesan = `${meta?.nama ?? p} pas di batas minimum.`;
       } else if (keb.min > 0 && d / keb.min <= MARGIN_MENDEKATI) {
         status = "mendekati";
-        pesan = `${meta?.nama ?? p} tepat di ambang minimum.`;
+        pesan = `${meta?.nama ?? p} dekat batas minimum.`;
       }
     }
 
@@ -101,17 +104,17 @@ export function evaluasiNutrisi(
         if ((isCaToleran || isPToleran || isSKToleran) && status !== "tidak") {
           status = "mendekati";
           selisih = -(v - keb.maks);
-          pesan = `${meta?.nama ?? p} sedikit di atas batas (${v.toFixed(2)} ${meta?.satuan ?? ""}), namun aman dan wajar untuk campuran konsentrat.`;
+          pesan = `${meta?.nama ?? p} sedikit lebih (${fmt(v, meta?.satuan)}, maksimum ${fmt(keb.maks, meta?.satuan)}).`;
         } else {
           status = "tidak";
           selisih = -(v - keb.maks);
-          pesan = `${meta?.nama ?? p} melebihi batas maksimum sebesar ${(v - keb.maks).toFixed(2)} ${meta?.satuan ?? ""}.`;
+          pesan = `${meta?.nama ?? p} lebih ${fmt(v - keb.maks, meta?.satuan)} dari batas maksimum.`;
         }
       } else if (d < 0 && status !== "tidak") {
         status = "mendekati";
-        pesan = `${meta?.nama ?? p} pas di ambang maksimum (dalam toleransi pembulatan).`;
+        pesan = `${meta?.nama ?? p} pas di batas maksimum.`;
       } else if (status !== "tidak" && keb.maks > 0 && d / keb.maks <= MARGIN_MENDEKATI) {
-        if (status !== "mendekati") { status = "mendekati"; pesan = `${meta?.nama ?? p} mendekati batas maksimum.`; }
+        if (status !== "mendekati") { status = "mendekati"; pesan = `${meta?.nama ?? p} dekat batas maksimum.`; }
       }
     }
 

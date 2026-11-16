@@ -1,5 +1,5 @@
 // ============================================================================
-// ui.tsx — Komponen Desain Sistem Formulasi Pakan (Tanpa Emoji, SVG Bersih, Ramah Peternak)
+// ui.tsx — Komponen tampilan bersama Sistem Formulasi Pakan
 // ============================================================================
 import React from "react";
 import type { StatusKelayakan, StatusParam } from "./engine/types";
@@ -7,7 +7,7 @@ import { parseAngka, formatRupiah } from "./utils/number";
 
 export { formatRupiah as rupiah };
 
-// --- IKON SVG STANDAR (Bersih, Tajam, Ringan) ---
+// --- IKON ---
 
 export function IkonCek({ className = "w-5 h-5 text-emerald-600" }: { className?: string }) {
   return (
@@ -136,14 +136,14 @@ export function Tombol(
   }
 ) {
   const { variant = "primary", ukuran = "normal", className = "", ...rest } = props;
-  const sizeClass = ukuran === "kecil" ? "px-3.5 py-2 text-sm rounded-lg" : "w-full rounded-xl px-5 py-3.5 text-base font-semibold";
-  const base = "inline-flex items-center justify-center gap-2 transition active:scale-[.99] disabled:opacity-50 disabled:pointer-events-none cursor-pointer";
+  const sizeClass = ukuran === "kecil" ? "px-3 py-1.5 text-sm rounded-lg" : "w-full rounded-lg px-4 py-3 text-[15px] font-semibold";
+  const base = "inline-flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:pointer-events-none cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700";
 
-  let warna = "bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm";
+  let warna = "bg-emerald-700 hover:bg-emerald-800 text-white";
   if (variant === "netral") {
-    warna = "bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 shadow-sm";
+    warna = "bg-white hover:bg-slate-50 text-slate-800 border border-slate-300";
   } else if (variant === "danger") {
-    warna = "bg-rose-600 hover:bg-rose-700 text-white shadow-sm";
+    warna = "bg-rose-700 hover:bg-rose-800 text-white";
   } else if (variant === "outline") {
     warna = "bg-transparent hover:bg-emerald-50 text-emerald-700 border border-emerald-600";
   }
@@ -151,75 +151,51 @@ export function Tombol(
   return <button {...rest} className={`${base} ${sizeClass} ${warna} ${className}`} />;
 }
 
-// --- KARTU PILIH TERNAK / PERIODE ---
+// --- DAFTAR PILIHAN (satu wadah, baris dipisah garis) ---
 
-export function KartuPilih(props: {
-  judul: string;
-  sub?: string;
-  badge?: string;
-  onClick: () => void;
-  aktif?: boolean;
-}) {
+export const Daftar = (p: { children: React.ReactNode; className?: string }) => (
+  <div className={`rounded-lg border border-slate-200 bg-white divide-y divide-slate-100 overflow-hidden ${p.className ?? ""}`}>{p.children}</div>
+);
+
+export function BarisPilih(p: { judul: string; sub?: string; kanan?: string; onClick: () => void; ariaLabel?: string }) {
   return (
     <button
-      onClick={props.onClick}
-      className={`w-full text-left rounded-xl px-4 py-3.5 border flex items-center justify-between gap-3 bg-white transition cursor-pointer ${
-        props.aktif
-          ? "border-emerald-600 ring-2 ring-emerald-600/20 bg-emerald-50/30"
-          : "border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
-      }`}
+      type="button"
+      onClick={p.onClick}
+      aria-label={p.ariaLabel}
+      className="w-full text-left px-3.5 py-3 flex items-center gap-3 hover:bg-slate-50 active:bg-slate-100 transition-colors cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-emerald-700"
     >
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-slate-800 text-base truncate">{props.judul}</span>
-          {props.badge && (
-            <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-              {props.badge}
-            </span>
-          )}
-        </div>
-        {props.sub && <span className="block text-xs text-slate-500 mt-0.5">{props.sub}</span>}
-      </div>
-      <div className="text-slate-400">
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </div>
+      <span className="flex-1 min-w-0">
+        <span className="block text-[15px] font-medium text-slate-900">{p.judul}</span>
+        {p.sub && <span className="block text-xs text-slate-500 mt-0.5">{p.sub}</span>}
+      </span>
+      {p.kanan && <span className="shrink-0 text-xs text-slate-500 tabular-nums">{p.kanan}</span>}
+      <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+      </svg>
     </button>
   );
 }
 
-// --- KARTU STATUS KELAYAKAN HASIL ---
+// --- STATUS HASIL: satu baris judul berwarna, tanpa kotak besar ---
 
 export function KartuStatus(props: { status: StatusKelayakan; judul: string; pesan?: string }) {
   const isLayak = props.status === "LAYAK";
   const isTidak = props.status === "TIDAK_LAYAK";
-
-  let bg = "bg-slate-50 border-slate-200";
-  let textJudul = "text-slate-800";
-  let textPesan = "text-slate-600";
-  let icon = <IkonBulatNetral className="w-6 h-6 text-slate-500 shrink-0" />;
-
-  if (isLayak) {
-    bg = "bg-emerald-50/90 border-emerald-300";
-    textJudul = "text-emerald-900";
-    textPesan = "text-emerald-800";
-    icon = <IkonCek className="w-6 h-6 text-emerald-600 shrink-0" />;
-  } else if (isTidak) {
-    bg = "bg-rose-50/90 border-rose-300";
-    textJudul = "text-rose-900";
-    textPesan = "text-rose-800";
-    icon = <IkonSilang className="w-6 h-6 text-rose-600 shrink-0" />;
-  }
-
+  const warna = isLayak ? "text-emerald-800" : isTidak ? "text-rose-800" : "text-slate-800";
+  const icon = isLayak ? (
+    <IkonCek className="w-6 h-6 text-emerald-700 shrink-0" />
+  ) : isTidak ? (
+    <IkonSilang className="w-6 h-6 text-rose-700 shrink-0" />
+  ) : (
+    <IkonBulatNetral className="w-6 h-6 text-slate-500 shrink-0" />
+  );
   return (
-    <div className={`rounded-xl border p-4.5 ${bg}`}>
-      <div className="flex items-start gap-3">
-        {icon}
-        <div className="flex-1">
-          <h3 className={`text-base font-bold tracking-tight ${textJudul}`}>{props.judul}</h3>
-          {props.pesan && <p className={`mt-1 text-sm leading-relaxed ${textPesan}`}>{props.pesan}</p>}
-        </div>
+    <div className="flex items-start gap-2.5" role="status">
+      {icon}
+      <div>
+        <p className={`text-base font-semibold leading-6 ${warna}`}>{props.judul}</p>
+        {props.pesan && <p className="mt-0.5 text-sm text-slate-600 leading-relaxed">{props.pesan}</p>}
       </div>
     </div>
   );
@@ -234,7 +210,7 @@ export function IkonParam({ s }: { s: StatusParam }) {
   return <IkonBulatNetral className="w-4 h-4 text-slate-400 inline-block" />;
 }
 
-// --- INPUT HARGA DENGAN LIVE HINT INDONESIA ---
+// --- INPUT HARGA (Rp/kg) ---
 
 export function IsianHarga(props: {
   label: string;
@@ -242,32 +218,28 @@ export function IsianHarga(props: {
   onChange: (v: string) => void;
   placeholder?: string;
   satuan?: string;
+  labelTersembunyi?: boolean;
 }) {
   const num = parseAngka(props.value);
-  const hintRupiah = num > 0 ? formatRupiah(num) : null;
-
+  // Tampilkan bacaan angka hanya bila diketik tanpa titik ribuan (mis. "55000"), agar salah ketik terlihat
+  const perluBacaan = num >= 1000 && !/[.,]/.test(props.value);
   return (
-    <div>
-      <div className="flex justify-between items-baseline mb-1">
-        <label className="text-xs font-medium text-slate-600">{props.label}</label>
-        {hintRupiah && (
-          <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
-            = {hintRupiah}/kg
-          </span>
-        )}
-      </div>
-      <div className="relative rounded-lg border border-slate-200 bg-white focus-within:border-emerald-600 focus-within:ring-1 focus-within:ring-emerald-600">
-        <span className="absolute left-3 top-2.5 text-xs text-slate-400 select-none">Rp</span>
+    <label className="block">
+      <span className={props.labelTersembunyi ? "sr-only" : "block text-xs text-slate-600 mb-1"}>{props.label}</span>
+      <span className="flex items-center rounded-lg border border-slate-300 bg-white focus-within:border-emerald-700 focus-within:ring-1 focus-within:ring-emerald-700">
+        <span className="pl-3 text-sm text-slate-500 select-none">Rp</span>
         <input
           inputMode="numeric"
           type="text"
           value={props.value}
           onChange={(e) => props.onChange(e.target.value)}
           placeholder={props.placeholder || "0"}
-          className="w-full pl-9 pr-3 py-2 text-sm text-slate-800 outline-none tabular-nums bg-transparent rounded-lg"
+          className="min-w-0 flex-1 px-2 py-2 text-[15px] text-slate-900 outline-none tabular-nums bg-transparent text-right"
         />
-      </div>
-    </div>
+        <span className="pr-3 text-sm text-slate-500 select-none">{props.satuan ?? "/kg"}</span>
+      </span>
+      {perluBacaan && <span className="block text-right text-xs text-slate-500 mt-0.5">dibaca {formatRupiah(num)}</span>}
+    </label>
   );
 }
 
@@ -282,7 +254,7 @@ export function Isian(p: {
 }) {
   return (
     <label className="block">
-      <span className="text-xs text-slate-500">{p.label}</span>
+      <span className="text-xs text-slate-600">{p.label}</span>
       <div className="relative mt-0.5">
         <input
           inputMode="decimal"
@@ -290,7 +262,7 @@ export function Isian(p: {
           value={p.value}
           onChange={(e) => p.onChange(e.target.value)}
           placeholder={p.placeholder}
-          className="w-full border-b border-slate-200 focus:border-emerald-600 outline-none py-1 text-sm tabular-nums text-slate-800"
+          className="w-full border-b border-slate-300 focus:border-emerald-700 outline-none py-1 text-[15px] tabular-nums text-slate-900"
         />
         {p.satuan && (
           <span className="absolute right-0 top-1 text-xs text-slate-400 select-none">{p.satuan}</span>
@@ -315,30 +287,15 @@ export function ModalKonfirmasi(props: {
   if (!props.buka) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl border border-slate-100">
-        <div className="flex items-center gap-3 mb-2">
-          {props.bahaya ? (
-            <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
-              <IkonPeringatan className="w-5 h-5 text-rose-600" />
-            </div>
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center shrink-0">
-              <IkonPeringatan className="w-5 h-5 text-emerald-600" />
-            </div>
-          )}
-          <h3 className="text-base font-bold text-slate-800">{props.judul}</h3>
-        </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40" role="dialog" aria-modal="true" aria-labelledby="judul-konfirmasi">
+      <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-lg">
+        <h3 id="judul-konfirmasi" className="text-base font-semibold text-slate-900 mb-1.5">{props.judul}</h3>
         <p className="text-sm text-slate-600 leading-relaxed mb-5">{props.pesan}</p>
         <div className="flex gap-2">
-          <Tombol variant="netral" onClick={props.onBatal} className="flex-1 text-sm py-2.5">
+          <Tombol variant="netral" onClick={props.onBatal} className="flex-1 py-2.5!">
             {props.teksBatal || "Batal"}
           </Tombol>
-          <Tombol
-            variant={props.bahaya ? "danger" : "primary"}
-            onClick={props.onKonfirmasi}
-            className="flex-1 text-sm py-2.5"
-          >
+          <Tombol variant={props.bahaya ? "danger" : "primary"} onClick={props.onKonfirmasi} className="flex-1 py-2.5!">
             {props.teksKonfirmasi || "Lanjutkan"}
           </Tombol>
         </div>
@@ -369,7 +326,7 @@ export function BannerPeringatan(props: {
   }
 
   return (
-    <div className={`rounded-xl border px-3.5 py-3 text-xs flex items-start justify-between gap-3 ${bg}`}>
+    <div className={`rounded-lg border px-3 py-2.5 text-[13px] flex items-start justify-between gap-3 ${bg}`}>
       <div className="flex items-start gap-2.5">
         <div className="mt-0.5">{icon}</div>
         <div className="leading-relaxed">
@@ -385,7 +342,7 @@ export function BannerPeringatan(props: {
         </div>
       </div>
       {props.onTutup && (
-        <button onClick={props.onTutup} className="text-slate-400 hover:text-slate-600 p-0.5">
+        <button onClick={props.onTutup} aria-label="Tutup" className="text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer">
           <IkonSilang className="w-3.5 h-3.5" />
         </button>
       )}
@@ -403,20 +360,20 @@ export const Baris = ({ k, v }: { k: string; v: string }) => (
 );
 
 export const Seksi = (p: { judul: string; sub?: string; kembali?: () => void; children: React.ReactNode }) => (
-  <section className="space-y-3">
-    <div className="flex items-center gap-2">
+  <section className="space-y-4">
+    <div className="flex items-start gap-1.5">
       {p.kembali && (
         <button
           onClick={p.kembali}
-          className="p-1 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition"
+          className="-ml-1.5 p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer"
           aria-label="Kembali"
         >
           <IkonKembali className="w-5 h-5" />
         </button>
       )}
       <div>
-        <h2 className="text-base font-bold text-slate-800 tracking-tight">{p.judul}</h2>
-        {p.sub && <p className="text-xs text-slate-500">{p.sub}</p>}
+        <h2 className="text-lg font-semibold text-slate-900 leading-tight">{p.judul}</h2>
+        {p.sub && <p className="text-sm text-slate-500">{p.sub}</p>}
       </div>
     </div>
     {p.children}
@@ -425,7 +382,7 @@ export const Seksi = (p: { judul: string; sub?: string; kembali?: () => void; ch
 
 export const BarBawah = (p: { children: React.ReactNode; className?: string }) => (
   <div
-    className={`fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-3 print:hidden z-30 ${p.className || ""}`}
+    className={`fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 py-3 print:hidden z-30 ${p.className || ""}`}
     style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 12px)" }}
   >
     <div className="mx-auto max-w-md px-4">{p.children}</div>

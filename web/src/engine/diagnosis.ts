@@ -56,12 +56,12 @@ export async function diagnosaInfeasible(
       severity: 1.5,
       masalah: {
         kode: "BATAS_MAKS_KURANG_100",
-        pesan: `Total batas maksimal bahan terpilih hanya ${totalMaksPersen.toFixed(0)}%. Campuran pakan memerlukan minimal ${kekuranganRuang.toFixed(0)}% bahan tambahan untuk mencapai 100%.`,
-        saran: `Tambahkan bahan sumber protein atau mineral (seperti Bungkil Kedelai, Tepung Ikan, atau Kapur), atau longgarkan batas maksimal bahan yang ada.`,
+        pesan: `Bahan yang dipilih paling banyak hanya bisa mengisi ${totalMaksPersen.toFixed(0)}% adukan; masih kurang ${kekuranganRuang.toFixed(0)}%.`,
+        saran: `Tambah bahan lain (mis. bungkil kedelai, tepung ikan, atau kapur), atau naikkan batas pemakaian bahan yang ada.`,
         substitusi: subsKekurangan,
-        alasanLapangan: `Bahan yang Anda centang batas pemakaiannya terlalu sedikit sehingga totalnya hanya ${totalMaksPersen.toFixed(0)}%, belum bisa genap 100%.`,
-        dampakTernak: "Pakan tidak dapat diaduk sesuai takaran batch karena volume total bahan kurang.",
-        solusiPraktis: "Centang bahan pakan pelengkap berprotein atau bermineral tinggi untuk menggenapkan 100% adukan pakan.",
+        alasanLapangan: `Batas pemakaian bahan yang dipilih jumlahnya hanya ${totalMaksPersen.toFixed(0)}%, belum sampai 100%.`,
+        dampakTernak: "",
+        solusiPraktis: "Tambah bahan sumber protein atau mineral, atau naikkan batas pemakaian bahan yang ada.",
       },
     });
   }
@@ -87,7 +87,7 @@ export async function diagnosaInfeasible(
             severity: keb.min > 0 ? defisit / keb.min : defisit,
             masalah: {
               kode: `${p}_KURANG`,
-              pesan: `${meta?.nama ?? p} kurang ${defisit.toFixed(2)} ${meta?.satuan ?? ""} (maksimal cuma tembus ${maxCapai.toFixed(2)} ${meta?.satuan ?? ""}, butuh minimal ${keb.min} ${meta?.satuan ?? ""}).`,
+              pesan: `${meta?.nama ?? p} tidak bisa mencapai ${fmt(keb.min, meta?.satuan)}: dengan bahan ini paling tinggi ${fmt(maxCapai, meta?.satuan)}.`,
               saran: saranTeks,
               substitusi: subs,
               alasanLapangan: alasanLapangan(p as ParamId, "kurang"),
@@ -113,7 +113,7 @@ export async function diagnosaInfeasible(
             severity: keb.maks > 0 ? excess / keb.maks : excess,
             masalah: {
               kode: `${p}_LEBIH`,
-              pesan: `${meta?.nama ?? p} berlebih ${excess.toFixed(2)} ${meta?.satuan ?? ""} (dari bahan terpilih minimal ${minCapai.toFixed(2)} ${meta?.satuan ?? ""}, batas maksimal cuma ${keb.maks} ${meta?.satuan ?? ""}).`,
+              pesan: `${meta?.nama ?? p} tidak bisa turun ke ${fmt(keb.maks, meta?.satuan)}: dengan bahan ini paling rendah ${fmt(minCapai, meta?.satuan)}.`,
               saran: saranTeks,
               substitusi: penyumbang,
               alasanLapangan: alasanLapangan(p as ParamId, "lebih"),
@@ -138,7 +138,7 @@ export async function diagnosaInfeasible(
           pesan: `Stok ${b.nama} hanya ${it.stokKg} kg, kurang dari batas minimum pemakaian (${lminKg.toFixed(1)} kg untuk batch ${req.batchKg} kg).`,
           saran: `Tambah stok ${b.nama} atau turunkan batas minimumnya.`,
           alasanLapangan: `Jumlah stok ${b.nama} di gudang tidak cukup untuk takaran aduk ${req.batchKg} kg.`,
-          dampakTernak: "Proses pencampuran pakan akan terhenti di tengah jalan karena kekurangan bahan.",
+          dampakTernak: "",
           solusiPraktis: `Sediakan stok ${b.nama} minimal ${lminKg.toFixed(1)} kg atau kurangi batas pemakaiannya.`,
         },
       });
@@ -151,18 +151,24 @@ export async function diagnosaInfeasible(
       severity: 0,
       masalah: {
         kode: "KOMBINASI_BATAS",
-        pesan: "Bahan-bahan yang Anda pilih saling bertolak belakang dalam memenuhi standar nutrisi.",
-        saran: "Gunakan 'Mode Konsentrat' atau tambahkan bahan berprotein tinggi (seperti Bungkil Kedelai/Tepung Ikan) dan mineral (Kapur).",
+        pesan: "Dengan bahan dan batas pemakaian ini, tidak ada campuran yang memenuhi semua kebutuhan gizi.",
+        saran: "Tambah bahan sumber protein (bungkil kedelai, tepung ikan) dan mineral (kapur), atau pakai cara Campuran Konsentrat.",
         substitusi: subsUmum,
-        alasanLapangan: "Bahan yang Anda centang terlalu sedikit atau batas pemakaiannya terlalu ketat sehingga tidak ada titik temu angka gizi.",
-        dampakTernak: "Pakan tidak seimbang dan berisiko mengganggu pertumbuhan serta daya tahan tubuh ternak.",
-        solusiPraktis: "Beralih ke 'Mode Konsentrat' yang sudah terbukti seimbang, atau klik tombol tambah bahan rekomendasi di bawah.",
+        alasanLapangan: "Bahan yang dipilih terlalu sedikit, atau batas pemakaiannya terlalu ketat.",
+        dampakTernak: "",
+        solusiPraktis: "Tambah bahan sumber protein (bungkil kedelai, tepung ikan) dan mineral (kapur), atau pakai cara Campuran Konsentrat.",
       },
     });
   }
 
   temuan.sort((a, b) => b.severity - a.severity);
   return temuan.slice(0, 3).map((t) => t.masalah); // maksimal 3 masalah utama
+}
+
+/** Angka gaya Indonesia untuk pesan. */
+function fmt(v: number | null | undefined, satuan = ""): string {
+  if (v == null) return "-";
+  return v.toLocaleString("id-ID", { maximumFractionDigits: satuan === "kkal/kg" ? 0 : 2 }) + (satuan === "%" ? "%" : satuan ? ` ${satuan}` : "");
 }
 
 function saranUntuk(p: string): string {
@@ -215,33 +221,33 @@ function dampakTernak(p: ParamId, arah: "kurang" | "lebih", jenisTernak: string)
     switch (p) {
       case "PK":
         return isLayer
-          ? "Produksi telur anjlok, ukuran telur kecil, ayam kurus, dan rawan saling mematuk bulu/kanibalisme."
-          : "Pertumbuhan ayam lambat (kerdil), bobot panen gagal tercapai, dan bulu lambat tumbuh.";
+          ? "produksi dan ukuran telur turun, dan ayam bisa saling mematuk."
+          : "pertumbuhan lambat dan bobot panen tidak tercapai.";
       case "EM":
-        return "Ayam tampak lesu/kedinginan, nafsu makan naik tinggi tapi bobot tetap kurus karena pakan boros terbuang jadi kotoran.";
+        return "ayam makan lebih banyak tetapi bobotnya tidak naik, sehingga pakan boros.";
       case "Ca":
         return isLayer
-          ? "Cangkang telur tipis, mudah pecah, telur tanpa cangkang (lembek), serta tulang ayam keropos hingga lumpuh."
-          : "Kaki ayam bengkok, pertumbuhan rangka terhenti, dan ayam lumpuh tidak bisa berdiri menopang bobotnya.";
+          ? "kerabang telur tipis dan mudah pecah, tulang ayam keropos."
+          : "kaki bengkok dan rangka tumbuh tidak normal.";
       case "P":
-        return "Tulang ayam rapuh, nafsu makan turun, dan daya tahan tubuh terhadap penyakit menurun drastis.";
+        return "tulang rapuh dan nafsu makan turun.";
       case "Lisin":
-        return "Pembentukan daging dada tipis dan konversi pakan (FCR) menjadi sangat boros.";
+        return "daging dada tipis dan FCR memburuk.";
       case "Methionin":
-        return "Bulu ayam kusam dan rontok, pertumbuhan terhambat, dan sistem imun melemah.";
+        return "bulu kusam, pertumbuhan terhambat.";
       default:
-        return "Performa pertumbuhan, kesehatan, dan daya tahan tubuh ternak akan menurun.";
+        return "pertumbuhan dan kesehatan ternak terganggu.";
     }
   } else {
     switch (p) {
       case "SK":
-        return "Ayam kembung, feses basah encer (mencret/diare), pakan keluar tanpa terserap sempurna, dan kandang menjadi becek berbau.";
+        return "kotoran basah, pakan tidak tercerna baik, dan kandang becek.";
       case "LK":
-        return "Pakan cepat tengik, ayam mogok makan, dan feses berminyak.";
+        return "pakan cepat tengik dan ayam enggan makan.";
       case "Ca":
-        return "Beban ginjal ayam berat (asam urat/gout) dan kotoran ayam berkapur putih berlebih.";
+        return "ginjal terbebani dan penyerapan mineral lain terganggu.";
       default:
-        return "Dapat menyebabkan gangguan pencernaan dan penurunan nafsu makan ternak.";
+        return "pencernaan terganggu dan nafsu makan turun.";
     }
   }
 }
@@ -250,27 +256,27 @@ function solusiPraktis(p: ParamId, arah: "kurang" | "lebih"): string {
   if (arah === "kurang") {
     switch (p) {
       case "PK":
-        return "Wajib tambahkan minimal 1 bahan sumber protein: Bungkil Kedelai, Konsentrat Pabrikan, atau Tepung Ikan.";
+        return "Tambah bahan sumber protein: bungkil kedelai, tepung ikan, atau konsentrat.";
       case "EM":
-        return "Naikkan porsi Jagung Kuning atau tambahkan 1-2% Minyak Nabati/Minyak Kelapa.";
+        return "Naikkan porsi jagung, atau tambah 1-2% minyak kelapa atau minyak nabati.";
       case "Ca":
-        return "Tambahkan 2-5% Kapur (Tepung Batu) atau Tepung Kulit Kerang.";
+        return "Tambah kapur atau tepung kulit kerang.";
       case "P":
-        return "Tambahkan 1-2% Tepung Tulang atau MBM (Meat and Bone Meal).";
+        return "Tambah 1-2% tepung tulang atau MBM.";
       case "Lisin":
       case "Methionin":
-        return "Tambahkan Tepung Ikan atau Konsentrat Pabrikan untuk melengkapi asam amino.";
+        return "Tambah tepung ikan atau konsentrat.";
       default:
-        return "Tambahkan bahan pelengkap kaya nutrisi tersebut.";
+        return "Tambah bahan yang kaya nutrisi tersebut.";
     }
   } else {
     switch (p) {
       case "SK":
-        return "Kurangi persentase Dedak Padi atau Pollard ke maksimal 10-15% dari total campuran.";
+        return "Kurangi dedak atau pollard, sebaiknya tidak lebih dari 10-15% adukan.";
       case "LK":
-        return "Kurangi penggunaan minyak nabati atau bahan berlemak tinggi.";
+        return "Kurangi minyak atau bahan berlemak tinggi.";
       default:
-        return "Kurangi porsi bahan yang menyumbang parameter ini secara berlebih.";
+        return "Kurangi bahan yang paling banyak menyumbang nutrisi ini.";
     }
   }
 }

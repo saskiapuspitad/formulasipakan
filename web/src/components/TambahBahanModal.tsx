@@ -24,7 +24,7 @@ export function TambahBahanModal({
 
   function simpan() {
     if (!nama.trim()) {
-      setPesan("Silakan isi nama bahan baku.");
+      setPesan("Isi nama bahan.");
       return;
     }
     const komposisi = {} as Record<ParamId, number | null>;
@@ -56,22 +56,20 @@ export function TambahBahanModal({
 
   return (
     <div
-      className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4"
+      className="fixed inset-0 z-40 bg-slate-900/40 flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={onTutup}
     >
       <div
-        className="bg-white w-full max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[90vh] overflow-y-auto p-5 shadow-2xl border border-slate-100"
+        className="bg-white w-full max-w-lg rounded-t-xl sm:rounded-xl max-h-[90vh] overflow-y-auto p-5 shadow-lg" role="dialog" aria-modal="true" aria-labelledby="judul-tambah"
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
-          <div>
-            <h2 className="text-base font-bold text-slate-800">Tambah Bahan Baku Kustom</h2>
-            <p className="text-xs text-slate-500">Tambahkan bahan pakan lokal yang Anda miliki</p>
-          </div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 id="judul-tambah" className="text-base font-semibold text-slate-900">Tambah bahan</h2>
           <button
             onClick={onTutup}
-            className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+            aria-label="Tutup"
+            className="p-1 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 cursor-pointer"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -81,22 +79,22 @@ export function TambahBahanModal({
 
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Nama Bahan Baku</label>
+            <label className="block text-sm font-medium text-slate-800 mb-1">Nama bahan</label>
             <input
               value={nama}
               onChange={(e) => setNama(e.target.value)}
-              placeholder="Contoh: Ampas Tahu Kering, Bekatul Super"
-              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 outline-none text-slate-800"
+              placeholder="Contoh: ampas tahu kering"
+              className="w-full px-3 py-2 text-[15px] rounded-lg border border-slate-300 focus:border-emerald-700 focus:ring-1 focus:ring-emerald-700 outline-none text-slate-800"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Kategori</label>
+              <label className="block text-sm font-medium text-slate-800 mb-1">Jenis</label>
               <select
                 value={kategori}
                 onChange={(e) => setKategori(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 outline-none bg-white text-slate-800 capitalize"
+                className="w-full px-3 py-2 text-[15px] rounded-lg border border-slate-300 focus:border-emerald-700 focus:ring-1 focus:ring-emerald-700 outline-none bg-white text-slate-800 capitalize"
               >
                 {KATEGORI.map((k) => (
                   <option key={k} value={k}>
@@ -106,7 +104,7 @@ export function TambahBahanModal({
               </select>
             </div>
             <IsianHarga
-              label="Harga Beli (Rp/kg)"
+              label="Harga"
               value={harga}
               onChange={setHarga}
               placeholder="5.000"
@@ -114,13 +112,9 @@ export function TambahBahanModal({
           </div>
 
           <div className="pt-2 border-t border-slate-100">
-            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-              Kandungan Nutrisi (per kg dasar as-fed)
-            </h3>
-            <p className="text-[11px] text-slate-500 mb-3">
-              Kosongkan jika belum diketahui laboratorium — sistem tidak akan menganggapnya nol.
-            </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200/60">
+            <h3 className="text-sm font-medium text-slate-800 mb-0.5">Kandungan gizi (bahan apa adanya, belum dikeringkan)</h3>
+            <p className="text-xs text-slate-500 mb-3">Kosongkan yang belum diketahui. Yang kosong tidak dianggap nol.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {parameter.map((p) => (
                 <Isian
                   key={p.id}
@@ -134,17 +128,15 @@ export function TambahBahanModal({
           </div>
 
           {pesan && (
-            <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700">
-              {pesan}
-            </div>
+            <p role="alert" className="text-sm text-rose-700">{pesan}</p>
           )}
 
           <div className="flex gap-2 pt-2">
-            <Tombol variant="netral" onClick={onTutup} className="flex-1 text-sm py-2.5">
+            <Tombol variant="netral" onClick={onTutup} className="flex-1 py-2.5!">
               Batal
             </Tombol>
-            <Tombol onClick={simpan} className="flex-1 text-sm py-2.5">
-              Simpan Bahan
+            <Tombol onClick={simpan} className="flex-1 py-2.5!">
+              Simpan bahan
             </Tombol>
           </div>
         </div>

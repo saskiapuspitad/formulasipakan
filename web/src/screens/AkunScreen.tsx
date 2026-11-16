@@ -31,6 +31,7 @@ export function AkunScreen(p: {
   onSinkron: () => void;
   onDataDipindah: () => void;
   onKeluar: () => void;
+  onAdmin?: () => void;
   onKembali: () => void;
   onMulai: () => void;
 }) {
@@ -71,22 +72,22 @@ export function AkunScreen(p: {
   const tglHarga = master?.data.bahan.map((b) => b.harga_acuan_berlaku_sejak).filter(Boolean).sort().pop();
 
   return (
-    <Seksi judul="Akun & Sinkronisasi" kembali={p.onKembali}>
+    <Seksi judul="Akun" kembali={p.onKembali}>
       {/* Data lama dari versi offline */}
       {(dataLama.length > 0 || dipindah.length > 0) && (
-        <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3.5 space-y-2.5">
-          <p className="text-sm font-bold text-emerald-900">{dataLama.length ? "Ada data lama di HP ini" : "Data lama berhasil dipindahkan"}</p>
-          <p className="text-xs text-emerald-900/80 leading-relaxed">
+        <div className="rounded-lg border border-slate-300 bg-white p-3.5 space-y-2.5">
+          <p className="text-sm font-semibold text-slate-900">{dataLama.length ? "Ada data lama di HP ini" : "Data lama berhasil dipindahkan"}</p>
+          <p className="text-sm text-slate-600 leading-relaxed">
             {dataLama.length
               ? "Formula dari versi sebelumnya (masuk dengan nama + PIN) bisa dipindahkan ke akun Anda agar ikut tersimpan di server."
               : `Data milik ${dipindah.join(", ")} sekarang ada di akun Anda dan dikirim ke server saat online.`}
           </p>
           {dataLama.map((d) => (
-            <div key={d.nama} className="flex items-center justify-between gap-2 bg-white rounded-lg border border-emerald-200 px-3 py-2">
+            <div key={d.nama} className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 px-3 py-2">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-slate-800 truncate">{d.nama}</p>
                 <p className="text-[11px] text-slate-500">
-                  {d.jumlahFormula} formula · {d.jumlahBahan} bahan buatan
+                  {d.jumlahFormula} formula, {d.jumlahBahan} bahan buatan
                 </p>
               </div>
               <Tombol
@@ -103,7 +104,7 @@ export function AkunScreen(p: {
             </div>
           ))}
           {dataLama.length > 0 ? (
-            <button type="button" onClick={p.onMulai} className="text-xs font-semibold text-emerald-800 underline cursor-pointer">
+            <button type="button" onClick={p.onMulai} className="text-sm font-medium text-emerald-800 underline cursor-pointer">
               Lewati, mulai buat formula
             </button>
           ) : (
@@ -115,23 +116,23 @@ export function AkunScreen(p: {
       )}
 
       {/* Profil */}
-      <div className="rounded-xl border border-slate-200 bg-white p-3.5">
-        <p className="text-sm font-bold text-slate-900">{p.pengguna.nama}</p>
-        <p className="text-xs text-slate-500">{p.pengguna.email}</p>
-        <span className="inline-block mt-1.5 text-[10px] font-semibold uppercase tracking-wide bg-slate-100 text-slate-600 rounded px-1.5 py-0.5">
-          {p.pengguna.peran === "admin" ? "Admin" : "Peternak"}
-        </span>
+      <div>
+        <p className="text-[15px] font-semibold text-slate-900">{p.pengguna.nama}</p>
+        <p className="text-sm text-slate-600">
+          {p.pengguna.email}
+          {p.pengguna.peran === "admin" ? ", admin" : ""}
+        </p>
       </div>
 
       {/* Sinkronisasi */}
-      <div className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-2">
-        <p className="text-xs font-bold text-slate-800">Sinkronisasi data</p>
-        <ul className="text-xs text-slate-600 space-y-1">
+      <div className="rounded-lg border border-slate-200 bg-white p-3.5 space-y-2">
+        <p className="text-sm font-semibold text-slate-900">Sinkronisasi data</p>
+        <ul className="text-sm text-slate-600 space-y-1">
           <li>
             Status:{" "}
             <span className="font-semibold">
               {!p.online
-                ? "Offline — perubahan disimpan di HP"
+                ? "Offline, perubahan disimpan di HP"
                 : p.berjalan
                   ? "Sedang menyinkronkan…"
                   : p.gagal
@@ -145,7 +146,7 @@ export function AkunScreen(p: {
           <li>
             Data bahan & harga:{" "}
             {p.sumberMaster === "server" ? "terbaru dari server" : p.sumberMaster === "salinan" ? "salinan di HP" : "bawaan aplikasi (2016)"}
-            {tglHarga ? ` · harga acuan per ${new Date(tglHarga).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}` : ""}
+            {tglHarga ? `, harga acuan per ${new Date(tglHarga).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}` : ""}
           </li>
         </ul>
         <Tombol ukuran="kecil" variant="netral" onClick={p.onSinkron} disabled={!p.online || p.berjalan}>
@@ -154,8 +155,8 @@ export function AkunScreen(p: {
       </div>
 
       {/* Riwayat perhitungan */}
-      <div className="rounded-xl border border-slate-200 bg-white p-3.5">
-        <p className="text-xs font-bold text-slate-800 mb-2">Riwayat perhitungan terakhir</p>
+      <div className="rounded-lg border border-slate-200 bg-white p-3.5">
+        <p className="text-sm font-semibold text-slate-900 mb-2">Riwayat perhitungan terakhir</p>
         {!p.online && <p className="text-xs text-slate-500">Riwayat tampil saat online.</p>}
         {p.online && riwayat && riwayat.length === 0 && <p className="text-xs text-slate-500">Belum ada perhitungan.</p>}
         {p.online && riwayat && riwayat.length > 0 && (
@@ -163,10 +164,10 @@ export function AkunScreen(p: {
             {riwayat.slice(0, 10).map((r, i) => (
               <li key={i} className="py-1.5 flex items-center justify-between gap-2 text-xs">
                 <span className="min-w-0 truncate text-slate-700">
-                  {r.ternak ?? "-"} <span className="text-slate-400">· {waktu(r.dihitung_pada)}</span>
+                  {r.ternak ?? "-"} <span className="text-slate-500">{waktu(r.dihitung_pada)}</span>
                 </span>
                 <span className={`shrink-0 font-semibold ${r.status === "LAYAK" ? "text-emerald-700" : "text-rose-700"}`}>
-                  {r.status === "LAYAK" ? (r.biaya_per_kg != null ? `${rupiah(r.biaya_per_kg)}/kg` : "Layak") : "Tidak layak"}
+                  {r.status === "LAYAK" ? (r.biaya_per_kg != null ? `${rupiah(r.biaya_per_kg)}/kg` : "Memenuhi") : "Belum memenuhi"}
                 </span>
               </li>
             ))}
@@ -175,8 +176,8 @@ export function AkunScreen(p: {
       </div>
 
       {/* Ganti kata sandi */}
-      <form onSubmit={kirimSandi} className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-2.5">
-        <p className="text-xs font-bold text-slate-800">Ganti kata sandi</p>
+      <form onSubmit={kirimSandi} className="rounded-lg border border-slate-200 bg-white p-3.5 space-y-2.5">
+        <p className="text-sm font-semibold text-slate-900">Ganti kata sandi</p>
         <input type="password" autoComplete="current-password" placeholder="Kata sandi lama" value={sandiLama} onChange={(e) => setSandiLama(e.target.value)} className={kelasInput} />
         <input type="password" autoComplete="new-password" placeholder="Kata sandi baru (min. 8 karakter)" value={sandiBaru} onChange={(e) => setSandiBaru(e.target.value)} className={kelasInput} />
         {pesanSandi && <BannerPeringatan tipe={pesanSandi.ok ? "info" : "danger"} pesan={pesanSandi.teks} />}
@@ -184,6 +185,12 @@ export function AkunScreen(p: {
           {prosesSandi ? "Menyimpan…" : "Simpan kata sandi"}
         </Tombol>
       </form>
+
+      {p.onAdmin && (
+        <Tombol variant="netral" onClick={p.onAdmin}>
+          Halaman admin
+        </Tombol>
+      )}
 
       <Tombol variant="danger" onClick={() => setKonfirmasiKeluar(true)}>
         Keluar dari akun
@@ -194,7 +201,7 @@ export function AkunScreen(p: {
         judul="Keluar dari akun?"
         pesan={
           p.online
-            ? "Perubahan akan dikirim ke server lebih dulu. Untuk masuk lagi diperlukan internet."
+            ? "Perubahan dikirim ke server lebih dulu. Untuk masuk lagi perlu internet."
             : "Anda sedang offline. Perubahan yang belum terkirim tetap tersimpan di HP dan akan dikirim saat Anda masuk lagi (perlu internet)."
         }
         teksKonfirmasi="Keluar"

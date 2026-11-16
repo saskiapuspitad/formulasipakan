@@ -11,7 +11,7 @@ import { bulatkanDanNormalkan } from "./rounding";
 import { evaluasiNutrisi } from "./nutrition";
 import { diagnosaInfeasible } from "./diagnosis";
 
-const PRAKTIS = "Perlu verifikasi ahli nutrisi & mutu bahan (kualitas aktual, kontaminasi, toksin, penyimpanan, bentuk fisik).";
+const PRAKTIS = "Angka gizi bahan diambil dari tabel; mutu bahan di lapangan (kadar air, jamur, cara simpan) bisa berbeda. Sebaiknya formula diperiksa ahli nutrisi sebelum dipakai rutin.";
 
 export async function formulasikan(m: Master, req: FormulasiRequest, solver: Solver): Promise<FormulasiResult> {
   const periode = m.periode(req.periodeId);
@@ -43,7 +43,7 @@ export async function formulasikan(m: Master, req: FormulasiRequest, solver: Sol
     const res0 = await solver.solve(tanpa.model);
     if (res0.status === "optimal") {
       res = res0; ctx = tanpa.ctx;
-      catatanMargin.push("Margin keamanan dilonggarkan karena kebutuhan sangat ketat; hasil diperiksa ulang setelah pembulatan.");
+      catatanMargin.push("Cadangan 1% dari batas gizi tidak bisa dipenuhi dengan bahan ini, jadi dihitung tepat pada batasnya.");
     }
   }
 
@@ -54,7 +54,7 @@ export async function formulasikan(m: Master, req: FormulasiRequest, solver: Sol
     if (resPraktis.status === "optimal") {
       res = resPraktis;
       ctx = praktis.ctx;
-      catatanMargin.push("Formula dioptimasi dengan toleransi lapangan: rentang kalsium & lemak disesuaikan dengan profil racikan bahan.");
+      catatanMargin.push("Dengan bahan ini batas gizi tidak bisa dipenuhi semuanya, jadi beberapa batas dilonggarkan: energi sampai 96% dari minimum, lemak minimum 3%, kalsium sampai 1,85%, fosfor sampai 1,3%, dan serat sampai 5,8%.");
     }
   }
 

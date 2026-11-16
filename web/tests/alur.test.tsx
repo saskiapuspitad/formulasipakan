@@ -52,12 +52,12 @@ describe("Sistem Formulasi Pakan online", () => {
     );
     await bukaAplikasi();
 
-    await user.click(await screen.findByRole("tab", { name: "Daftar Akun Baru" }));
-    await user.type(screen.getByLabelText("Nama Lengkap"), "Sari Wulandari");
+    await user.click(await screen.findByRole("tab", { name: "Daftar" }));
+    await user.type(screen.getByLabelText("Nama lengkap"), "Sari Wulandari");
     await user.type(screen.getByLabelText("Email"), EMAIL);
-    await user.type(screen.getByLabelText("Kata Sandi"), SANDI);
-    await user.type(screen.getByLabelText("Ulangi Kata Sandi"), SANDI);
-    await user.click(screen.getByRole("button", { name: "Buat Akun" }));
+    await user.type(screen.getByLabelText("Kata sandi"), SANDI);
+    await user.type(screen.getByLabelText("Ulangi kata sandi"), SANDI);
+    await user.click(screen.getByRole("button", { name: "Daftar" }));
 
     // Ada data lama -> langsung ke layar Akun
     expect(await screen.findByText("Ada data lama di HP ini")).toBeTruthy();
@@ -77,12 +77,12 @@ describe("Sistem Formulasi Pakan online", () => {
     await user.click(periode[0]);
     await user.click(await screen.findByRole("button", { name: /Racik Mandiri/ }));
     await user.click(await screen.findByRole("button", { name: /Pilih 8 Bahan Pokok/ }));
-    await user.click(screen.getByRole("button", { name: /Hitung Formula Mandiri/ }));
+    await user.click(screen.getByRole("button", { name: /Hitung formula \(8 bahan\)/ }));
     await user.click(await screen.findByRole("button", { name: "Simpan" }, { timeout: 20000 }));
-    const isianNama = await screen.findByPlaceholderText(/Contoh: Broiler Finisher/);
+    const isianNama = await screen.findByPlaceholderText(/Contoh: Broiler finisher/);
     await user.clear(isianNama);
     await user.type(isianNama, "Uji Starter Online");
-    await user.click(screen.getByRole("button", { name: "Simpan Formula" }));
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Simpan" }));
 
     let idBaru = "";
     await waitFor(async () => {
@@ -90,7 +90,7 @@ describe("Sistem Formulasi Pakan online", () => {
       expect(r.length).toBe(1);
       idBaru = r[0].id;
       // Harga awal jagung = harga acuan terpusat (bukan harga 2016)
-      expect(r[0].data.itemsState.jagung_kuning.harga).toBe("6200");
+      expect(r[0].data.itemsState.jagung_kuning.harga).toBe("6.200");
       const log = await q("SELECT status, ternak FROM log_hitung WHERE pengguna_id = $1", [pengguna.id]);
       expect(log.length).toBeGreaterThanOrEqual(1);
       expect(log[0].ternak).toBe("Ayam Pedaging (Broiler)");
@@ -98,11 +98,11 @@ describe("Sistem Formulasi Pakan online", () => {
 
     // OFFLINE: hapus formula lama -> tersimpan di HP dulu
     setOnline(false);
-    expect(await screen.findByText("Tersimpan di HP")).toBeTruthy();
+    expect(await screen.findByText("Offline, tersimpan di HP")).toBeTruthy();
     await user.click(screen.getByRole("button", { name: /Tersimpan \(2\)/ }));
-    const kartuLama = (await screen.findByText("Formula Lama")).closest("div.rounded-xl") as HTMLElement;
+    const kartuLama = (await screen.findByText("Formula Lama")).closest("div.px-3\\.5") as HTMLElement;
     await user.click(within(kartuLama).getByRole("button", { name: "Hapus" }));
-    await user.click(screen.getByRole("button", { name: "Hapus Sekarang" }));
+    await user.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Hapus" }));
     await new Promise((r) => setTimeout(r, 2500));
     expect((await q("SELECT dihapus FROM formula WHERE id = 'f_lama_1'"))[0].dihapus).toBe(false);
 
@@ -122,13 +122,13 @@ describe("Sistem Formulasi Pakan online", () => {
     await bukaAplikasi();
     expect(await screen.findByRole("tab", { name: "Masuk" })).toBeTruthy();
     await user.type(screen.getByLabelText("Email"), EMAIL);
-    await user.type(screen.getByLabelText("Kata Sandi"), "salah-sandi");
+    await user.type(screen.getByLabelText("Kata sandi"), "salah-sandi");
     await user.click(screen.getByRole("button", { name: "Masuk" }));
     expect(await screen.findByText("Email atau kata sandi salah.")).toBeTruthy();
-    await user.clear(screen.getByLabelText("Kata Sandi"));
-    await user.type(screen.getByLabelText("Kata Sandi"), SANDI);
+    await user.clear(screen.getByLabelText("Kata sandi"));
+    await user.type(screen.getByLabelText("Kata sandi"), SANDI);
     await user.click(screen.getByRole("button", { name: "Masuk" }));
-    expect(await screen.findByText("Pilih Komoditas Ternak Unggas")).toBeTruthy();
+    expect(await screen.findByText("Pilih ternak")).toBeTruthy();
     const tombol = await screen.findByRole("button", { name: /Tersimpan \(1\)/ }, { timeout: 10000 });
     await user.click(tombol);
     expect(await screen.findByText("Uji Starter Online")).toBeTruthy();
@@ -141,10 +141,10 @@ describe("Sistem Formulasi Pakan online", () => {
     hapusSemuaCookie();
     await bukaAplikasi();
     await user.type(await screen.findByLabelText("Email"), EMAIL);
-    await user.type(screen.getByLabelText("Kata Sandi"), SANDI);
+    await user.type(screen.getByLabelText("Kata sandi"), SANDI);
     await user.click(screen.getByRole("button", { name: "Masuk" }));
-    await user.click(await screen.findByRole("button", { name: /Tabel Kebutuhan Nutrisi/ }));
-    expect(await screen.findByText("Kebutuhan Nutrisi Unggas")).toBeTruthy();
+    await user.click(await screen.findByRole("button", { name: /Tabel kebutuhan gizi/ }));
+    expect(await screen.findByText("Kebutuhan gizi unggas")).toBeTruthy();
     const tabel = () => within(screen.getByRole("table"));
     // Broiler Pre-Starter (baris pertama Excel): EM 2950, SK 3-5 (apa adanya, bukan "≤ 5")
     expect(screen.getByRole("tab", { name: "Ayam Pedaging (Broiler)", selected: true })).toBeTruthy();
@@ -155,7 +155,8 @@ describe("Sistem Formulasi Pakan online", () => {
     expect(tabel().getByText("≥ 1,2")).toBeTruthy();
     expect(tabel().getAllByRole("columnheader").length).toBe(8); // Nutrisi + 7 fase
     await user.click(screen.getByRole("button", { name: "Racik pakan Kalkun Periode Grower 1" }));
-    expect(await screen.findByText("Penyusunan Formula Pakan")).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Grower 1" })).toBeTruthy();
+    expect(screen.getAllByText("Kalkun").length).toBeGreaterThan(0);
   });
 
   it("Admin: statistik, ubah harga acuan (format 7.500), daftar pengguna", async () => {
@@ -165,7 +166,7 @@ describe("Sistem Formulasi Pakan online", () => {
     hapusSemuaCookie();
     await bukaAplikasi();
     await user.type(await screen.findByLabelText("Email"), EMAIL);
-    await user.type(screen.getByLabelText("Kata Sandi"), SANDI);
+    await user.type(screen.getByLabelText("Kata sandi"), SANDI);
     await user.click(screen.getByRole("button", { name: "Masuk" }));
     await user.click(await screen.findByRole("button", { name: "Admin" }));
 

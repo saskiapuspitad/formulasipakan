@@ -62,7 +62,7 @@ export function KebutuhanScreen(p: {
   const fase = KEBUTUHAN_NUTRISI_2026.filter((b) => rapi(b.ternak) === ternak);
 
   return (
-    <Seksi judul="Kebutuhan Nutrisi Unggas" sub="Kebutuhan gizi pakan per jenis ternak dan fase" kembali={p.onKembali}>
+    <Seksi judul="Kebutuhan gizi unggas" sub="Kebutuhan gizi pakan per jenis ternak dan fase" kembali={p.onKembali}>
       {/* Pilih jenis ternak */}
       <div className="flex gap-1.5 overflow-x-auto -mx-1 px-1 pb-1 print:hidden" role="tablist" aria-label="Jenis ternak">
         {daftarTernak.map((t) => (
@@ -72,10 +72,10 @@ export function KebutuhanScreen(p: {
             role="tab"
             aria-selected={t === ternak}
             onClick={() => setTernak(t)}
-            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold border transition cursor-pointer ${
+            className={`shrink-0 px-3 py-1.5 rounded-full text-sm border transition-colors cursor-pointer ${
               t === ternak
-                ? "bg-emerald-700 border-emerald-700 text-white"
-                : "bg-white border-slate-200 text-slate-600 hover:border-emerald-600"
+                ? "bg-slate-900 border-slate-900 text-white"
+                : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
             }`}
           >
             {t}
@@ -83,11 +83,11 @@ export function KebutuhanScreen(p: {
         ))}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-2xs">
+      <div className="rounded-lg border border-slate-200 bg-white">
         <div className="px-3.5 pt-3 pb-2 flex items-baseline justify-between gap-2">
-          <p className="text-sm font-bold text-slate-900">{ternak}</p>
+          <p className="text-sm font-semibold text-slate-900">{ternak}</p>
           <p className="text-[11px] text-slate-500">
-            {fase.length} fase{fase.length > 3 ? " · geser tabel ke samping →" : ""}
+            {fase.length} fase{fase.length > 3 ? ", geser tabel ke samping" : ""}
           </p>
         </div>
         <div className="overflow-x-auto">
@@ -109,9 +109,7 @@ export function KebutuhanScreen(p: {
                 <tr key={par.id} className="border-t border-slate-100">
                   <th scope="row" className="sticky left-0 z-10 bg-white text-left font-normal pl-3 pr-2 py-2">
                     <span className="block font-semibold text-slate-800">{par.nama}</span>
-                    <span className="block text-[10px] text-slate-500">
-                      {par.id} · {par.satuan}
-                    </span>
+                    <span className="block text-[11px] text-slate-500">{par.satuan}</span>
                   </th>
                   {fase.map((b) => (
                     <td key={b.periode} className="text-right px-1.5 py-2 tabular-nums whitespace-nowrap font-semibold text-slate-900 last:pr-3">
@@ -133,9 +131,9 @@ export function KebutuhanScreen(p: {
                           type="button"
                           onClick={() => p.onRacik(id, b.ternak)}
                           aria-label={`Racik pakan ${rapi(b.periode)}`}
-                          className="px-2.5 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-semibold cursor-pointer whitespace-nowrap"
+                          className="px-2 py-1 rounded-md text-emerald-800 text-xs font-medium underline underline-offset-2 hover:bg-emerald-50 cursor-pointer whitespace-nowrap"
                         >
-                          Racik →
+                          Hitung
                         </button>
                       ) : (
                         <span className="text-slate-300">-</span>
@@ -149,21 +147,20 @@ export function KebutuhanScreen(p: {
         </div>
       </div>
 
-      <div className="text-[11px] text-slate-600 leading-relaxed space-y-1">
+      <div className="text-xs text-slate-500 leading-relaxed space-y-1">
         <p>
-          <span className="font-semibold">a - b</span> = kisaran (minimum - maksimum) ·{" "}
-          <span className="font-semibold">≥ a</span> = minimum. Energi dalam kkal/kg, lainnya dalam % pakan.
+          <span className="font-semibold">a - b</span> berarti kisaran, <span className="font-semibold">≥ a</span> berarti paling
+          sedikit. Energi dalam kkal/kg, lainnya dalam % pakan.
         </p>
         <p>
-          Sumber: <span className="font-semibold">{SUMBER_KEBUTUHAN}</span>. Angka ditampilkan apa adanya dari
-          tabel sumber. Saat menghitung formula, serat kasar dipakai sebagai batas maksimum.
+          Sumber: {SUMBER_KEBUTUHAN}. Saat menghitung formula, serat kasar dipakai sebagai batas paling banyak.
         </p>
       </div>
 
       <button
         type="button"
         onClick={() => window.print()}
-        className="text-xs font-semibold text-emerald-800 underline underline-offset-2 cursor-pointer print:hidden"
+        className="text-sm font-medium text-emerald-800 underline underline-offset-2 cursor-pointer print:hidden"
       >
         Cetak tabel ini
       </button>

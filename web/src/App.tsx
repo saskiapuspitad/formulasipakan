@@ -16,6 +16,8 @@ import {
 import {
   Tombol,
   Seksi,
+  Daftar,
+  BarisPilih,
   BarBawah,
   Pusat,
   rupiah,
@@ -47,16 +49,7 @@ import {
 import { AkunScreen } from "./screens/AkunScreen";
 import { AdminScreen } from "./screens/AdminScreen";
 import { KebutuhanScreen } from "./screens/KebutuhanScreen";
-
-const KATEGORI_TERNAK_INFO: Record<string, { kategori: string; desc: string }> = {
-  "Ayam Pedaging (Broiler)": { kategori: "Pedaging", desc: "Fase starter & finisher komersial" },
-  "Ayam Petelur (Layer)": { kategori: "Petelur", desc: "Fase starter, grower, pullet & layer bertelur" },
-  "Ayam Kampung": { kategori: "Lokal", desc: "Ayam buras masa pertumbuhan & produksi" },
-  "Ayam KUB": { kategori: "Lokal", desc: "Ayam kampung unggul Balitnak" },
-  "Itik": { kategori: "Unggas Air", desc: "Bebek pedaging & petelur" },
-  "Puyuh": { kategori: "Burung", desc: "Puyuh starter & masa bertelur aktif" },
-  "Kalkun": { kategori: "Hobi / Pedaging", desc: "Kalkun fase starter, grower & finisher" },
-};
+import { namaFase, angka, teksHarga } from "./utils/teks";
 
 const solver = createJsLpSolver();
 const isBuatan = (id: string) => id.startsWith("custom_");
@@ -106,7 +99,7 @@ export default function App() {
     if (!sehat.aktif) {
       setPeringatanStorage(
         sehat.pesan ||
-          "Penyimpanan browser berjalan dalam mode terbatas (Private Mode / Memori Penuh). Formula yang Anda racik dapat hilang saat tab ditutup. Gunakan fitur 'Cadangkan Data' secara berkala."
+          "Browser ini tidak bisa menyimpan data secara permanen (mode pribadi atau memori penuh). Formula bisa hilang saat tab ditutup; unduh cadangan secara berkala."
       );
     }
   }, []);
@@ -171,7 +164,7 @@ export default function App() {
           setRawData(await ambilMasterBawaan());
           setSumberMaster("bawaan");
         } catch {
-          setError("Gagal memuat basis data pakan. Periksa sambungan internet lalu muat ulang.");
+          setError("Data bahan pakan belum bisa dimuat. Periksa internet, lalu coba lagi.");
         }
       });
   }
@@ -211,7 +204,7 @@ export default function App() {
       if (p === null) {
         simpanSesi(null);
         setUser(null);
-        setPesanSesi("Sesi Anda berakhir. Silakan masuk kembali — data di HP ini tetap aman dan akan disinkronkan.");
+        setPesanSesi("Sesi Anda berakhir. Masuk lagi untuk melanjutkan; data di HP ini tidak hilang.");
       } else if (p) {
         setUser((u) => (u && u.id === p.id && u.nama === p.nama && u.peran === p.peran ? u : p));
       }
@@ -230,7 +223,7 @@ export default function App() {
     if (r.sesiBerakhir) {
       simpanSesi(null);
       setUser(null);
-      setPesanSesi("Sesi Anda berakhir. Silakan masuk kembali — data di HP ini tetap aman dan akan disinkronkan.");
+      setPesanSesi("Sesi Anda berakhir. Masuk lagi untuk melanjutkan; data di HP ini tidak hilang.");
       return;
     }
     if (r.dataBerubah) muatDataPengguna(uid);
@@ -308,15 +301,11 @@ export default function App() {
   if (error) {
     return (
       <Pusat>
-        <div className="text-center p-6 bg-white rounded-2xl border border-rose-200 shadow-sm max-w-sm">
-          <p className="text-rose-700 font-semibold text-sm mb-3">{error}</p>
-          <button
-            type="button"
-            onClick={muatDataMaster}
-            className="px-4 py-2 bg-emerald-700 text-white rounded-lg text-xs font-semibold hover:bg-emerald-800 transition cursor-pointer"
-          >
-            Coba Muat Ulang
-          </button>
+        <div className="max-w-xs space-y-3">
+          <p className="text-sm text-slate-800">{error}</p>
+          <Tombol ukuran="kecil" onClick={muatDataMaster}>
+            Coba lagi
+          </Tombol>
         </div>
       </Pusat>
     );
@@ -327,7 +316,7 @@ export default function App() {
       <Pusat>
         <div className="flex flex-col items-center gap-2">
           <div className="w-8 h-8 border-3 border-emerald-700 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-500 text-xs font-medium">Memuat data standar gizi…</p>
+          <p className="text-slate-600 text-sm">Memuat data bahan…</p>
         </div>
       </Pusat>
     );
@@ -358,7 +347,7 @@ export default function App() {
       const maks = master!.batasDefaultPersen(b, per);
       next[b.id] = {
         pilih: false,
-        harga: String(hargaAwal(b) ?? ""),
+        harga: teksHarga(hargaAwal(b)),
         min: "0",
         maks: maks != null ? String(maks) : "100",
       };
@@ -380,7 +369,7 @@ export default function App() {
     catatPerubahan(uid!, "bahanBuatan", b.id, b);
     setItems((s) => ({
       ...s,
-      [b.id]: { pilih: true, harga: String(hargaAwal(b) ?? ""), min: "0", maks: "100" },
+      [b.id]: { pilih: true, harga: teksHarga(hargaAwal(b)), min: "0", maks: "100" },
     }));
     setTambah(false);
   }
@@ -430,7 +419,7 @@ export default function App() {
     if (!hasil || !periode) return;
     const f: FormulaTersimpan = {
       id: "f_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-      nama: nama.trim() || `${ternak} ${periode.nama}`,
+      nama: nama.trim() || `${ternak} ${namaFase(periode.nama, periode.jenis_ternak)}`,
       tanggal: new Date().toISOString(),
       ternak,
       periodeNama: periode.nama,
@@ -484,7 +473,7 @@ export default function App() {
         } else {
           next[b.id] = {
             pilih: isDipakai,
-            harga: String(hargaAwal(b) ?? ""),
+            harga: teksHarga(hargaAwal(b)),
             min: "0",
             maks: maks != null ? String(maks) : "100",
           };
@@ -529,7 +518,7 @@ export default function App() {
       catatPerhitungan(res, "konsentrat");
     } catch {
       setHasil(null);
-      setError("Terjadi kesalahan saat menghitung formula.");
+      setError("Formula gagal dihitung. Coba lagi; bila terus gagal, laporkan ke admin.");
     } finally {
       setHitung(false);
     }
@@ -543,14 +532,14 @@ export default function App() {
       const b = master.bahan(id);
       const cur = nextItems[id] || {
         pilih: false,
-        harga: String((b && hargaAwal(b)) ?? 7500),
+        harga: teksHarga((b && hargaAwal(b)) ?? 7500),
         min: "0",
         maks: "100",
       };
       nextItems[id] = {
         ...cur,
         pilih: true,
-        harga: parseAngka(cur.harga) > 0 ? cur.harga : String((b && hargaAwal(b)) ?? 7500),
+        harga: parseAngka(cur.harga) > 0 ? cur.harga : teksHarga((b && hargaAwal(b)) ?? 7500),
       };
     }
     setItems(nextItems);
@@ -580,7 +569,7 @@ export default function App() {
         setHasil(res);
         catatPerhitungan(res, "lengkapi_otomatis");
       })
-      .catch(() => setError("Terjadi kesalahan saat menghitung formula."))
+      .catch(() => setError("Formula gagal dihitung. Coba lagi; bila terus gagal, laporkan ke admin."))
       .finally(() => setHitung(false));
   }
 
@@ -603,14 +592,14 @@ export default function App() {
       const maks = master.batasDefaultPersen(b, periode);
       const cur = nextItems[id] || {
         pilih: false,
-        harga: String(hargaAwal(b) ?? 7500),
+        harga: teksHarga(hargaAwal(b) ?? 7500),
         min: "0",
         maks: maks != null ? String(maks) : "100",
       };
       nextItems[id] = {
         ...cur,
         pilih: true,
-        harga: parseAngka(cur.harga) > 0 ? cur.harga : String(hargaAwal(b) ?? 7500),
+        harga: parseAngka(cur.harga) > 0 ? cur.harga : teksHarga(hargaAwal(b) ?? 7500),
       };
     }
     setItems(nextItems);
@@ -643,7 +632,7 @@ export default function App() {
       catatPerhitungan(res, "mandiri");
     } catch {
       setHasil(null);
-      setError("Terjadi kesalahan teknis saat optimasi linear.");
+      setError("Formula gagal dihitung. Coba lagi; bila terus gagal, laporkan ke admin.");
     } finally {
       setHitung(false);
     }
@@ -669,7 +658,7 @@ export default function App() {
         alert(res.pesan);
       }
     } catch {
-      alert("Gagal memproses berkas cadangan.");
+      alert("Berkas cadangan tidak bisa dibaca. Pastikan berkasnya hasil unduhan dari aplikasi ini.");
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
@@ -683,87 +672,73 @@ export default function App() {
       className={`min-h-full mx-auto ${langkah === "admin" ? "max-w-5xl" : "max-w-md"} px-4 pb-28 text-slate-800`}
       style={{ paddingTop: "env(safe-area-inset-top, 12px)" }}
     >
-      {/* HEADER UTAMA */}
-      <header className="py-3.5 flex items-center justify-between gap-2 border-b border-slate-200/80 mb-4 print:hidden">
-        <div className="min-w-0 flex items-start gap-2.5">
-          <LogoAplikasi className="w-8 h-8 shrink-0 mt-0.5" />
-          <div className="min-w-0">
-          <div className="flex items-center gap-x-2 gap-y-0.5 flex-wrap">
-            <h1 className="text-[15px] font-bold text-slate-900 tracking-tight leading-tight">Sistem Formulasi Pakan</h1>
-            <span
-              className="text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded"
-              title="Precision Livestock Farming Research Group, Faculty of Animal Science and Technology, Universitas Brawijaya"
-            >
-              PLF UB
-            </span>
-            {!isOnline && (
-              <span className="text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 rounded px-1.5 py-0.5">
-                Offline
-              </span>
-            )}
-          </div>
-          <p className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
-            <button
-              type="button"
-              onClick={() => bukaLangkah("akun")}
-              className="font-semibold text-slate-700 underline decoration-slate-300 underline-offset-2 hover:text-emerald-800 cursor-pointer max-w-[9rem] truncate"
-              title="Akun & sinkronisasi"
-            >
-              {user.nama}
-            </button>
-            <span aria-hidden>·</span>
-            {!isOnline ? (
-              <span className="text-amber-700 font-medium">Tersimpan di HP</span>
-            ) : statusSinkron.berjalan ? (
-              <span className="text-slate-500">Menyinkronkan…</span>
-            ) : statusSinkron.gagal ? (
-              <button type="button" onClick={jalankanSinkron} className="text-rose-700 font-medium underline cursor-pointer">
-                Gagal sinkron · coba lagi
-              </button>
-            ) : statusSinkron.tertunda > 0 ? (
-              <button type="button" onClick={jalankanSinkron} className="text-amber-700 font-medium underline cursor-pointer">
-                Menunggu sinkron ({statusSinkron.tertunda})
-              </button>
-            ) : (
-              <span className="text-emerald-700 font-medium">Tersinkron</span>
-            )}
-          </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5 shrink-0">
-        {user.peran === "admin" && (
-          <button
-            type="button"
-            onClick={() => bukaLangkah("admin")}
-            className="text-xs bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg px-2.5 py-1.5 font-semibold transition cursor-pointer shadow-2xs shrink-0"
-          >
-            Admin
-          </button>
-        )}
-
+      {/* KEPALA APLIKASI */}
+      <header className="py-3 flex items-center justify-between gap-3 border-b border-slate-200 mb-5 print:hidden">
         <button
           type="button"
-          onClick={() => bukaLangkah("tersimpan")}
-          aria-label={`Tersimpan${formulas.length ? ` (${formulas.length})` : ""}`}
-          title="Formula tersimpan"
-          className="text-xs bg-white hover:bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 font-semibold text-slate-700 transition cursor-pointer flex items-center gap-1.5 shadow-2xs"
+          onClick={() => bukaLangkah("ternak")}
+          className="min-w-0 flex items-center gap-2.5 text-left cursor-pointer"
+          aria-label="Ke halaman awal"
         >
-          <svg className="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-          {/* Admin di layar sempit: cukup ikon + jumlah agar judul tidak terpecah */}
-          <span className={user.peran === "admin" ? "hidden min-[400px]:inline" : ""}>Tersimpan</span>
-          {formulas.length > 0 && <span>{user.peran === "admin" ? <span className="min-[400px]:hidden">{formulas.length}</span> : null}<span className={user.peran === "admin" ? "hidden min-[400px]:inline" : ""}>({formulas.length})</span></span>}
+          <LogoAplikasi className="w-7 h-7 shrink-0" />
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold text-slate-900 leading-tight truncate">Sistem Formulasi Pakan</span>
+            <span className="block text-xs text-slate-500 leading-tight mt-0.5 truncate">
+              {!isOnline ? (
+                <span className="text-amber-800">Offline, tersimpan di HP</span>
+              ) : statusSinkron.berjalan ? (
+                "Menyinkronkan…"
+              ) : statusSinkron.gagal ? (
+                <span className="text-rose-700">Gagal sinkron</span>
+              ) : statusSinkron.tertunda > 0 ? (
+                <span className="text-amber-800">{statusSinkron.tertunda} perubahan belum terkirim</span>
+              ) : (
+                "Tersinkron"
+              )}
+            </span>
+          </span>
         </button>
-        </div>
+
+        <nav className="flex items-center shrink-0 text-[13px]" aria-label="Menu">
+          {statusSinkron.gagal && isOnline && (
+            <button type="button" onClick={jalankanSinkron} className="px-2 py-1.5 rounded-md text-rose-700 font-medium hover:bg-rose-50 cursor-pointer">
+              Coba lagi
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => bukaLangkah("tersimpan")}
+            aria-label={`Tersimpan${formulas.length ? ` (${formulas.length})` : ""}`}
+            className="px-1.5 py-1.5 rounded-md font-medium text-slate-700 hover:bg-slate-100 cursor-pointer"
+          >
+            Tersimpan{formulas.length > 0 ? ` (${formulas.length})` : ""}
+          </button>
+          {user.peran === "admin" && (
+            <button
+              type="button"
+              onClick={() => bukaLangkah("admin")}
+              className="hidden min-[400px]:inline-block px-1.5 py-1.5 rounded-md font-medium text-slate-700 hover:bg-slate-100 cursor-pointer"
+            >
+              Admin
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => bukaLangkah("akun")}
+            title={user.nama}
+            aria-label={`Akun ${user.nama}`}
+            className="ml-1 w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold grid place-items-center cursor-pointer"
+          >
+            {user.nama.trim().split(/\s+/).slice(0, 2).map((k) => k[0]?.toUpperCase()).join("")}
+          </button>
+        </nav>
       </header>
 
       {sumberMaster === "bawaan" && langkah !== "admin" && (
         <div className="mb-4 print:hidden">
           <BannerPeringatan
             tipe="info"
-            pesan="Belum terhubung ke server: memakai data bahan & harga bawaan aplikasi (harga 2016). Hubungkan internet agar harga acuan terbaru terunduh."
+            pesan="Belum terhubung ke server, jadi harga yang dipakai adalah harga bawaan tahun 2016. Sambungkan internet agar harga terbaru terunduh."
           />
         </div>
       )}
@@ -775,94 +750,61 @@ export default function App() {
         </div>
       )}
 
-      {/* 1. LANGKAH PEMILIHAN KOMODITAS TERNAK */}
+      {/* 1. PILIH TERNAK */}
       {langkah === "ternak" && (
-        <Seksi judul="Pilih Komoditas Ternak Unggas">
+        <Seksi judul="Pilih ternak" sub="Formula disusun per jenis ternak dan fase pemeliharaan.">
+          <Daftar>
+            {master.data.ternak.map((t) => {
+              const jml = master.data.periode.filter((p) => p.jenis_ternak === t.nama).length;
+              return <BarisPilih key={t.id} judul={t.nama} kanan={`${jml} fase`} onClick={() => pilihTernak(t.nama)} />;
+            })}
+          </Daftar>
           <button
             type="button"
             onClick={() => {
               setTernakKebutuhan(undefined);
               bukaLangkah("kebutuhan");
             }}
-            className="w-full text-left rounded-xl p-3.5 mb-3 border border-emerald-200 bg-emerald-50/60 hover:border-emerald-600 active:scale-[.99] transition cursor-pointer flex items-center gap-3 group"
+            className="w-full flex items-center gap-2.5 px-3.5 py-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-left cursor-pointer"
           >
-            <svg className="w-8 h-8 shrink-0 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+            <svg className="w-5 h-5 shrink-0 text-emerald-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18M9 6v12M4 6h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z" />
             </svg>
-            <div className="flex-1 min-w-0">
-              <span className="block text-sm font-bold text-emerald-900">Tabel Kebutuhan Nutrisi</span>
-              <span className="block text-xs text-emerald-900/70 leading-snug">
-                Kebutuhan gizi setiap jenis unggas per fase · Kebutuhan Nutrisi Ternak Unggas 2026
-              </span>
-            </div>
-            <svg className="w-5 h-5 text-emerald-400 group-hover:text-emerald-700 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <span className="flex-1 text-sm font-medium text-slate-800">Tabel kebutuhan gizi semua ternak</span>
+            <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </button>
-          <div className="grid gap-2.5">
-            {master.data.ternak.map((t) => {
-              const info = KATEGORI_TERNAK_INFO[t.nama] ?? { kategori: "Unggas", desc: "Formulasi nutrisi standar" };
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => pilihTernak(t.nama)}
-                  className="w-full text-left rounded-xl p-3.5 border border-slate-200 bg-white hover:border-emerald-600 hover:bg-emerald-50/20 active:scale-[.99] transition cursor-pointer shadow-2xs flex items-center justify-between group"
-                >
-                  <div className="flex-1 pr-3">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-sm font-bold text-slate-900 group-hover:text-emerald-900">
-                        {t.nama}
-                      </span>
-                      <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
-                        {info.kategori}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-500 leading-snug">{info.desc}</p>
-                  </div>
-                  <svg className="w-5 h-5 text-slate-300 group-hover:text-emerald-700 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              );
-            })}
-          </div>
-
         </Seksi>
       )}
 
-      {/* 2. LANGKAH PEMILIHAN FASE PERTUMBUHAN */}
+      {/* 2. PILIH FASE */}
       {langkah === "periode" && (
-        <Seksi judul={`Fase Fisiologis: ${ternak}`} kembali={mundur}>
-          <div className="grid gap-2.5">
-            {daftarPeriode.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => pilihPeriode(p.id)}
-                className="w-full text-left rounded-xl p-3.5 border border-slate-200 bg-white hover:border-emerald-600 hover:bg-emerald-50/20 active:scale-[.99] transition cursor-pointer shadow-2xs flex items-center justify-between group"
-              >
-                <div className="flex-1 pr-3">
-                  <span className="block text-sm font-bold text-slate-900 group-hover:text-emerald-900">
-                    {p.nama}
-                  </span>
-                  <span className="block text-xs text-slate-500 mt-0.5">
-                    {p.tujuan === "layer" ? "Tujuan Produksi Telur" : "Tujuan Pertumbuhan Daging"}
-                  </span>
-                </div>
-                <svg className="w-5 h-5 text-slate-300 group-hover:text-emerald-700 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            ))}
-          </div>
+        <Seksi judul={ternak} sub="Pilih fase pemeliharaan" kembali={mundur}>
+          <Daftar>
+            {daftarPeriode.map((p) => {
+              const pk = p.kebutuhan.PK?.min;
+              const em = p.kebutuhan.EM?.min;
+              return (
+                <BarisPilih
+                  key={p.id}
+                  judul={namaFase(p.nama, p.jenis_ternak)}
+                  sub={[pk != null ? `Protein min. ${angka(pk)}%` : null, em != null ? `energi min. ${angka(em, 0)} kkal/kg` : null].filter(Boolean).join(", ")}
+                  ariaLabel={p.nama}
+                  onClick={() => pilihPeriode(p.id)}
+                />
+              );
+            })}
+          </Daftar>
           <button
             type="button"
             onClick={() => {
               setTernakKebutuhan(ternak);
               bukaLangkah("kebutuhan");
             }}
-            className="text-xs font-semibold text-emerald-800 underline underline-offset-2 cursor-pointer"
+            className="text-sm font-medium text-emerald-800 underline underline-offset-2 cursor-pointer"
           >
-            Lihat tabel kebutuhan nutrisi {ternak}
+            Lihat semua kebutuhan gizi {ternak}
           </button>
         </Seksi>
       )}
@@ -893,13 +835,11 @@ export default function App() {
 
       {/* 4. LAYAR HASIL & LEMBAR TIMBANGAN */}
       {langkah === "hasil" && (
-        <Seksi judul="Hasil Formulasi Nutrisi" kembali={mundur}>
+        <Seksi judul="Hasil formula" sub={periode ? `${ternak}, ${namaFase(periode.nama, periode.jenis_ternak)}` : ternak || undefined} kembali={mundur}>
           {hitung && (
-            <div className="py-12 text-center space-y-3">
-              <div className="w-8 h-8 border-3 border-emerald-700 border-t-transparent rounded-full animate-spin mx-auto"></div>
-              <p className="text-xs text-slate-600 font-medium">
-                Mengoptimasi keseimbangan nutrisi dan biaya pakan…
-              </p>
+            <div className="py-12 text-center space-y-3" role="status">
+              <div className="w-7 h-7 border-3 border-emerald-700 border-t-transparent rounded-full animate-spin mx-auto motion-reduce:animate-none"></div>
+              <p className="text-sm text-slate-600">Menghitung formula…</p>
             </div>
           )}
           {!hitung && hasil && (
@@ -908,142 +848,100 @@ export default function App() {
               ternak={ternak}
               periodeNama={periode?.nama}
               batchKg={Number(batch) || 0}
-              onAutoLengkapi={autoLengkapiBahan}
-              onPindahKeKonsentrat={() => {
-                setModeBahan("konsentrat");
-                bukaLangkah("bahan");
-              }}
-              onUbahBahan={() => bukaLangkah("bahan")}
+              onAutoLengkapi={!dariTersimpan && modeBahan === "mandiri" ? autoLengkapiBahan : undefined}
+              onPindahKeKonsentrat={
+                !dariTersimpan && modeBahan === "mandiri"
+                  ? () => {
+                      setModeBahan("konsentrat");
+                      bukaLangkah("bahan");
+                    }
+                  : undefined
+              }
+              onUbahBahan={dariTersimpan ? undefined : () => bukaLangkah("bahan")}
             />
           )}
         </Seksi>
       )}
 
-      {/* 5. FORMULA TERSIMPAN & PENGELOLAAN CADANGAN DATA */}
+      {/* 5. FORMULA TERSIMPAN */}
       {langkah === "tersimpan" && (
-        <Seksi judul="Arsip Formula Pakan" kembali={mundur}>
-          {/* Toolbar Cadangan & Pemulihan Data JSON */}
-          <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl mb-3 flex items-center justify-between gap-2">
-            <div>
-              <p className="text-xs font-bold text-slate-800">Cadangan Berkas Data</p>
-              <p className="text-[11px] text-slate-500">Amankan resep formula ke perangkat Anda</p>
+        <Seksi judul="Formula tersimpan" sub={formulas.length > 1 ? "Centang dua formula untuk membandingkan." : undefined} kembali={mundur}>
+          {formulas.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-8 text-center">
+              <p className="text-sm font-medium text-slate-800">Belum ada formula tersimpan</p>
+              <p className="text-sm text-slate-500 mt-1 max-w-xs mx-auto">Hitung formula, lalu tekan Simpan di halaman hasil.</p>
+              <Tombol ukuran="kecil" className="mt-4" onClick={() => bukaLangkah("ternak")}>
+                Buat formula
+              </Tombol>
             </div>
-            <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => unduhCadangan(user.id, user.nama)}
-                className="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-2xs transition cursor-pointer"
-                title="Unduh seluruh resep formula & bahan kustom sebagai berkas JSON"
-              >
-                <IkonUnduh className="w-3.5 h-3.5 text-slate-600" />
-                <span>Cadangkan</span>
-              </button>
-              <label
-                className="px-2.5 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-2xs transition cursor-pointer"
-                title="Pulihkan resep dari berkas JSON"
-              >
-                <IkonUnggah className="w-3.5 h-3.5 text-slate-600" />
-                <span>Pulihkan</span>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".json,application/json"
-                  className="hidden"
-                  onChange={handleUnggahCadangan}
-                />
-              </label>
-            </div>
-          </div>
-
-          {formulas.length === 0 && (
-            <div className="py-8 text-center bg-white rounded-xl border border-slate-200 p-6">
-              <p className="text-xs font-semibold text-slate-700 mb-1">Belum Ada Formula Tersimpan</p>
-              <p className="text-xs text-slate-500 max-w-xs mx-auto">
-                Setelah menghitung formula yang layak, tekan tombol "Simpan" agar resep dapat dibuka kembali sewaktu-waktu.
-              </p>
-            </div>
-          )}
-
-          <div className="grid gap-2.5">
-            {formulas.map((f) => (
-              <div
-                key={f.id}
-                className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-2xs space-y-2.5"
-              >
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={pilihBanding.includes(f.id)}
-                    onChange={() => toggleBanding(f.id)}
-                    title="Pilih untuk perbandingan"
-                    className="w-4 h-4 mt-0.5 rounded border-slate-300 text-emerald-700 focus:ring-emerald-600 cursor-pointer"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-slate-900 text-sm truncate">{f.nama}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      {f.ternak} · {f.periodeNama}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-600">
-                      <span
-                        className={`font-semibold px-1.5 py-0.2 rounded ${
-                          f.hasil.status === "LAYAK"
-                            ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                            : "bg-rose-50 text-rose-800 border border-rose-200"
-                        }`}
-                      >
-                        {f.hasil.status}
-                      </span>
-                      <span>·</span>
-                      <span className="font-semibold text-slate-800">
-                        {f.hasil.biayaPerKg != null ? `${rupiah(f.hasil.biayaPerKg)}/kg` : "-"}
-                      </span>
-                      <span>·</span>
-                      <span className="text-slate-400">
-                        {new Date(f.tanggal).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                      </span>
+          ) : (
+            <Daftar>
+              {formulas.map((f) => (
+                <div key={f.id} className="px-3.5 py-3">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={pilihBanding.includes(f.id)}
+                      onChange={() => toggleBanding(f.id)}
+                      aria-label={`Pilih ${f.nama} untuk dibandingkan`}
+                      className="w-4 h-4 mt-1 rounded border-slate-300 accent-emerald-700 cursor-pointer"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-slate-900 text-[15px] truncate">{f.nama}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        {f.ternak}, {namaFase(f.periodeNama, f.ternak)}. Disimpan{" "}
+                        {new Date(f.tanggal).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                      <p className="text-sm mt-1">
+                        <span className={f.hasil.status === "LAYAK" ? "text-emerald-800" : "text-rose-700"}>
+                          {f.hasil.status === "LAYAK" ? "Memenuhi gizi" : "Belum memenuhi gizi"}
+                        </span>
+                        {f.hasil.biayaPerKg != null && (
+                          <span className="text-slate-700 tabular-nums">, {rupiah(f.hasil.biayaPerKg)}/kg</span>
+                        )}
+                      </p>
+                      <div className="flex items-center gap-4 mt-2 text-sm">
+                        <button type="button" onClick={() => bukaFormula(f)} className="font-medium text-emerald-800 hover:underline cursor-pointer">
+                          Buka Timbangan
+                        </button>
+                        <button type="button" onClick={() => racikUlangFormula(f)} className="font-medium text-slate-700 hover:underline cursor-pointer">
+                          Racik Ulang
+                        </button>
+                        <button type="button" onClick={() => mintaHapusFormula(f.id)} className="ml-auto text-rose-700 hover:underline cursor-pointer">
+                          Hapus
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
+              ))}
+            </Daftar>
+          )}
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => bukaFormula(f)}
-                      className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-md font-semibold transition cursor-pointer"
-                    >
-                      Buka Timbangan
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => racikUlangFormula(f)}
-                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md font-medium transition cursor-pointer"
-                      title="Muat formula ke formulir bahan untuk penyesuaian harga atau porsi"
-                    >
-                      Racik Ulang
-                    </button>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => mintaHapusFormula(f.id)}
-                    className="text-rose-600 hover:text-rose-800 font-medium px-2 py-1 cursor-pointer"
-                  >
-                    Hapus
-                  </button>
-                </div>
-              </div>
-            ))}
+          <div className="pt-2 text-sm text-slate-600">
+            <p>Cadangan berkas untuk disimpan di luar aplikasi:</p>
+            <div className="flex items-center gap-4 mt-1.5">
+              <button
+                type="button"
+                onClick={() => unduhCadangan(user.id, user.nama)}
+                className="inline-flex items-center gap-1.5 font-medium text-slate-800 hover:underline cursor-pointer"
+              >
+                <IkonUnduh className="w-4 h-4" />
+                Unduh cadangan
+              </button>
+              <label className="inline-flex items-center gap-1.5 font-medium text-slate-800 hover:underline cursor-pointer">
+                <IkonUnggah className="w-4 h-4" />
+                Pulihkan dari berkas
+                <input ref={fileInputRef} type="file" accept=".json,application/json" className="hidden" onChange={handleUnggahCadangan} />
+              </label>
+            </div>
           </div>
         </Seksi>
       )}
 
       {/* 6. LAYAR BANDINGKAN 2 FORMULA */}
       {langkah === "banding" && bandingA && bandingB && (
-        <Seksi judul="Perbandingan 2 Formula" kembali={mundur}>
+        <Seksi judul="Bandingkan formula" kembali={mundur}>
           <BandingView a={bandingA} b={bandingB} params={master.parameter} />
         </Seksi>
       )}
@@ -1081,6 +979,7 @@ export default function App() {
             jalankanSinkron();
           }}
           onKeluar={keluar}
+          onAdmin={user.peran === "admin" ? () => bukaLangkah("admin") : undefined}
           onKembali={() => (window.history.length > 1 ? mundur() : bukaLangkah("ternak"))}
           onMulai={() => bukaLangkah("ternak")}
         />
@@ -1102,7 +1001,7 @@ export default function App() {
 
       {simpanModal && (
         <SimpanFormulaModal
-          defaultNama={`${ternak} ${periode?.nama ?? ""}`.trim()}
+          defaultNama={`${ternak} ${periode ? namaFase(periode.nama, periode.jenis_ternak) : ""}`.trim()}
           onSimpan={simpanFormula}
           onTutup={() => setSimpanModal(false)}
         />
@@ -1111,10 +1010,10 @@ export default function App() {
       {konfirmasiHapus && (
         <ModalKonfirmasi
           buka={!!konfirmasiHapus}
-          judul={`Hapus ${konfirmasiHapus.tipe === "formula" ? "Formula" : "Bahan Pakan"}`}
-          pesan={`Apakah Anda yakin ingin menghapus "${konfirmasiHapus.nama}"? Data yang dihapus tidak dapat dikembalikan secara otomatis.`}
+          judul={`Hapus ${konfirmasiHapus.tipe === "formula" ? "formula" : "bahan"} ini?`}
+          pesan={`"${konfirmasiHapus.nama}" akan dihapus dari HP ini dan dari akun Anda. Tindakan ini tidak bisa dibatalkan.`}
           teksBatal="Batal"
-          teksKonfirmasi="Hapus Sekarang"
+          teksKonfirmasi="Hapus"
           bahaya
           onBatal={() => setKonfirmasiHapus(null)}
           onKonfirmasi={eksekusiHapus}
@@ -1125,9 +1024,9 @@ export default function App() {
       {langkah === "hasil" && !hitung && hasil && (
         <BarBawah>
           {dariTersimpan ? (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2 [&>button]:text-sm">
               <Tombol variant="netral" onClick={mundur}>
-                Kembali ke Arsip
+                Kembali
               </Tombol>
               <Tombol
                 onClick={() => {
@@ -1137,13 +1036,13 @@ export default function App() {
                   setHasil(null);
                 }}
               >
-                Formulasi Baru
+                Formula baru
               </Tombol>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2 [&>button]:px-2 [&>button]:text-sm">
               <Tombol variant="netral" onClick={mundur}>
-                Ubah Bahan
+                Ubah bahan
               </Tombol>
               <Tombol variant="netral" onClick={() => setSimpanModal(true)}>
                 Simpan
@@ -1166,7 +1065,7 @@ export default function App() {
       {langkah === "tersimpan" && pilihBanding.length === 2 && (
         <BarBawah>
           <Tombol onClick={() => bukaLangkah("banding")}>
-            Bandingkan 2 Formula Terpilih
+            Bandingkan 2 formula
           </Tombol>
         </BarBawah>
       )}

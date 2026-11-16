@@ -8,6 +8,7 @@ import {
   hitungFormulaDariRasio,
 } from "../engine/concentrates";
 import { rupiah, Tombol, IsianHarga } from "../ui";
+import { namaBahan, angka, teksHarga } from "../utils/teks";
 import { parseAngka } from "../utils/number";
 
 export function ModeKonsentrat({
@@ -45,10 +46,10 @@ export function ModeKonsentrat({
   );
 
   // Harga masing-masing bahan
-  const [hargaKonsentrat, setHargaKonsentrat] = useState("9500");
-  const [hargaJagung, setHargaJagung] = useState("5500");
-  const [hargaDedak, setHargaDedak] = useState("3500");
-  const [hargaKapur, setHargaKapur] = useState("1500");
+  const [hargaKonsentrat, setHargaKonsentrat] = useState("9.500");
+  const [hargaJagung, setHargaJagung] = useState("5.500");
+  const [hargaDedak, setHargaDedak] = useState("3.500");
+  const [hargaKapur, setHargaKapur] = useState("1.500");
 
   // Metode: preset rasio atau solver LP
   const [metode, setMetode] = useState<"preset" | "solver">("preset");
@@ -68,7 +69,7 @@ export function ModeKonsentrat({
     const targetId = adaDiList ? konsentratId : recId;
     setKonsentratId(targetId);
     const b = konsentratTersedia.find((k) => k.id === targetId) || konsentratTersedia[0];
-    if (b) setHargaKonsentrat(String(b.harga_2016_rp_per_kg ?? 9200));
+    if (b) setHargaKonsentrat(teksHarga(b.harga_2016_rp_per_kg ?? 9200));
   }, [periode.jenis_ternak, konsentratTersedia, isLayer]);
 
   useEffect(() => {
@@ -186,157 +187,93 @@ export function ModeKonsentrat({
     }
   }
 
+  const kg = (persen: number) => `${angka((persen / 100) * batchKg, 1)} kg`;
+  const takaranTeks = (persen: number) => (metode === "preset" ? kg(totalPersen > 0 ? (persen * 100) / totalPersen : 0) : "dihitung");
+  const namaPola = (nama: string) => {
+    const n = nama.replace(/\s*\(.*\)\s*$/, "").trim();
+    return n.charAt(0) + n.slice(1).toLowerCase();
+  };
+  const barisHarga: { label: string; persen: number; value: string; set: (v: string) => void; ph: string }[] = [
+    { label: "Jagung giling", persen: persenJagung, value: hargaJagung, set: setHargaJagung, ph: "5.500" },
+    { label: "Konsentrat", persen: persenKonsentrat, value: hargaKonsentrat, set: setHargaKonsentrat, ph: "9.500" },
+    { label: "Dedak halus", persen: persenDedak, value: hargaDedak, set: setHargaDedak, ph: "3.500" },
+  ];
+
   return (
-    <div className="space-y-4">
-      {/* 1. Pilih Konsentrat */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs">
-        <label className="block mb-2">
-          <span className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-1">
-            1. Jenis Konsentrat Pabrikan
-          </span>
-          <select
-            value={konsentratId}
-            onChange={(e) => {
-              setKonsentratId(e.target.value);
-              const b = konsentratTersedia.find((k) => k.id === e.target.value);
-              if (b) setHargaKonsentrat(String(b.harga_2016_rp_per_kg ?? 9500));
-            }}
-            className="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 outline-none focus:border-emerald-600 focus:bg-white transition"
-          >
-            {konsentratTersedia.map((k) => (
-              <option key={k.id} value={k.id}>
-                {k.nama} (PK {k.komposisi.PK}%)
-              </option>
-            ))}
-          </select>
-        </label>
-        <span className="text-[11px] text-slate-500 block">
-          Pilihan konsentrat komersial yang tersedia di poultry shop/toko pakan.
-        </span>
-      </div>
+    <div className="space-y-5">
+      <label className="block">
+        <span className="block text-sm font-medium text-slate-800 mb-1.5">Konsentrat</span>
+        <select
+          value={konsentratId}
+          onChange={(e) => {
+            setKonsentratId(e.target.value);
+            const b = konsentratTersedia.find((k) => k.id === e.target.value);
+            if (b) setHargaKonsentrat(teksHarga(b.harga_2016_rp_per_kg ?? 9500));
+          }}
+          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-[15px] text-slate-900 outline-none focus:border-emerald-700 focus:ring-1 focus:ring-emerald-700"
+        >
+          {konsentratTersedia.map((k) => (
+            <option key={k.id} value={k.id}>
+              {namaBahan(k.id, k.nama)}, protein {angka(k.komposisi.PK ?? null, 1)}%
+            </option>
+          ))}
+        </select>
+      </label>
 
-      {/* 2. Pilihan Pola Takaran */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs">
-        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-2.5">
-          2. Pola Takaran Campuran
-        </span>
-
-        <div className="grid gap-2">
+      <fieldset>
+        <legend className="text-sm font-medium text-slate-800 mb-1.5">
+          Takaran <span className="font-normal text-slate-500">(jagung : konsentrat : dedak{isLayer ? " : kapur" : ""})</span>
+        </legend>
+        <div className="rounded-lg border border-slate-200 bg-white divide-y divide-slate-100">
           {presetTampil.map((preset) => {
             const aktif = metode === "preset" && presetAktif === preset.id;
+            const rasio = [preset.persenJagung, preset.persenKonsentrat, preset.persenDedak, ...(preset.persenKapur ? [preset.persenKapur] : [])];
             return (
-              <button
-                key={preset.id}
-                type="button"
-                onClick={() => pilihPreset(preset.id)}
-                className={`w-full text-left p-3 rounded-lg border transition text-xs cursor-pointer ${
-                  aktif
-                    ? "bg-emerald-50/70 border-emerald-600 ring-1 ring-emerald-600/30"
-                    : "bg-slate-50/60 border-slate-200 hover:bg-slate-100/60"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800 text-sm">{preset.nama}</span>
-                  {aktif && (
-                    <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
-                      Dipilih
-                    </span>
-                  )}
-                </div>
-                <p className="text-slate-600 mt-1 text-[11px] leading-relaxed">{preset.deskripsi}</p>
-              </button>
+              <label key={preset.id} className={`flex items-center gap-3 px-3.5 py-3 cursor-pointer ${aktif ? "bg-emerald-50/50" : "hover:bg-slate-50"}`}>
+                <input type="radio" name="takaran" checked={aktif} onChange={() => pilihPreset(preset.id)} className="w-4.5 h-4.5 accent-emerald-700 shrink-0" />
+                <span className="flex-1 min-w-0">
+                  <span className="block text-lg font-semibold tabular-nums text-slate-900 leading-tight">{rasio.join(" : ")}</span>
+                  <span className="block text-xs text-slate-500 mt-0.5">{namaPola(preset.nama)}</span>
+                </span>
+              </label>
             );
           })}
-
-          {/* Opsi Solver Otomatis */}
-          <button
-            type="button"
-            onClick={() => {
-              setMetode("solver");
-              setPresetAktif("solver");
-            }}
-            className={`w-full text-left p-3 rounded-lg border transition text-xs cursor-pointer ${
-              metode === "solver"
-                ? "bg-emerald-50/70 border-emerald-600 ring-1 ring-emerald-600/30"
-                : "bg-slate-50/60 border-slate-200 hover:bg-slate-100/60"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-slate-800 text-sm">
-                Optimasi Linear Programming (Biaya Terendah)
-              </span>
-              {metode === "solver" && (
-                <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full">
-                  Dipilih
-                </span>
-              )}
-            </div>
-            <p className="text-slate-600 mt-1 text-[11px] leading-relaxed">
-              Sistem akan menghitung rasio persentase yang menghasilkan biaya paling murah dengan kendala nutrisi standar.
-            </p>
-          </button>
+          <label className={`flex items-center gap-3 px-3.5 py-3 cursor-pointer ${metode === "solver" ? "bg-emerald-50/50" : "hover:bg-slate-50"}`}>
+            <input
+              type="radio"
+              name="takaran"
+              checked={metode === "solver"}
+              onChange={() => {
+                setMetode("solver");
+                setPresetAktif("solver");
+              }}
+              className="w-4.5 h-4.5 accent-emerald-700 shrink-0"
+            />
+            <span className="flex-1 min-w-0">
+              <span className="block text-[15px] font-semibold text-slate-900">Cari takaran termurah</span>
+              <span className="block text-xs text-slate-500 mt-0.5">Aplikasi menghitung takaran paling murah yang tetap memenuhi gizi.</span>
+            </span>
+          </label>
         </div>
-      </div>
+      </fieldset>
 
-      {/* 3. Masukkan Harga Bahan */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs">
-        <span className="text-xs font-bold text-slate-700 uppercase tracking-wide block mb-3">
-          3. Harga Bahan di Lokasi Anda
-        </span>
-
-        <div className="grid gap-3">
-          {/* Konsentrat */}
-          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-            <div>
-              <span className="font-bold text-sm text-slate-800 block">Konsentrat</span>
-              <span className="text-xs text-slate-500">
-                Takaran: {metode === "preset" ? `${persenKonsentrat}% (~${((persenKonsentrat / 100) * batchKg).toFixed(1)} kg)` : "Dihitung solver"}
+      <div>
+        <p className="text-sm font-medium text-slate-800 mb-1.5">Harga per kg di tempat Anda</p>
+        <div className="rounded-lg border border-slate-200 bg-white divide-y divide-slate-100">
+          {barisHarga.map((b) => (
+            <div key={b.label} className="flex items-center gap-3 px-3.5 py-2.5">
+              <span className="flex-1 min-w-0">
+                <span className="block text-[15px] text-slate-900">{b.label}</span>
+                <span className="block text-xs text-slate-500 tabular-nums">{takaranTeks(b.persen)}</span>
+              </span>
+              <span className="w-40 shrink-0">
+                <IsianHarga label={`Harga ${b.label.toLowerCase()}`} labelTersembunyi value={b.value} onChange={b.set} placeholder={b.ph} />
               </span>
             </div>
-            <IsianHarga
-              label="Harga Beli"
-              value={hargaKonsentrat}
-              onChange={setHargaKonsentrat}
-              placeholder="9.500"
-            />
-          </div>
-
-          {/* Jagung */}
-          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-            <div>
-              <span className="font-bold text-sm text-slate-800 block">Jagung Kuning Giling</span>
-              <span className="text-xs text-slate-500">
-                Takaran: {metode === "preset" ? `${persenJagung}% (~${((persenJagung / 100) * batchKg).toFixed(1)} kg)` : "Dihitung solver"}
-              </span>
-            </div>
-            <IsianHarga
-              label="Harga Beli"
-              value={hargaJagung}
-              onChange={setHargaJagung}
-              placeholder="5.500"
-            />
-          </div>
-
-          {/* Dedak */}
-          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-            <div>
-              <span className="font-bold text-sm text-slate-800 block">Dedak Padi Halus</span>
-              <span className="text-xs text-slate-500">
-                Takaran: {metode === "preset" ? `${persenDedak}% (~${((persenDedak / 100) * batchKg).toFixed(1)} kg)` : "Dihitung solver"}
-              </span>
-            </div>
-            <IsianHarga
-              label="Harga Beli"
-              value={hargaDedak}
-              onChange={setHargaDedak}
-              placeholder="3.500"
-            />
-          </div>
-
-          {/* Kapur / Grit (Khusus Layer) */}
+          ))}
           {isLayer && (
-            <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <label className="flex items-center gap-2.5 cursor-pointer mb-2">
+            <div className="px-3.5 py-2.5">
+              <label className="flex items-center gap-2.5 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={pakaiKapur}
@@ -345,42 +282,30 @@ export function ModeKonsentrat({
                     if (!e.target.checked) setPersenKapur(0);
                     else if (persenKapur === 0) setPersenKapur(5);
                   }}
-                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 accent-emerald-700"
+                  className="w-4.5 h-4.5 rounded accent-emerald-700"
                 />
-                <div>
-                  <span className="font-bold text-sm text-slate-800">Tambahkan Kapur / Grit Kulit Kerang</span>
-                  <span className="text-[11px] text-slate-500 block">
-                    Sumber kalsium pembentukan kerabang / cangkang telur
-                  </span>
-                </div>
+                <span className="text-[15px] text-slate-900">Tambah kapur atau grit kulit kerang</span>
               </label>
+              <span className="block text-xs text-slate-500 mt-0.5 ml-7">Untuk kerabang telur.</span>
               {pakaiKapur && (
-                <div className="mt-2 pl-6">
-                  <IsianHarga
-                    label="Harga Beli Kapur/Grit"
-                    value={hargaKapur}
-                    onChange={setHargaKapur}
-                    placeholder="1.500"
-                  />
+                <div className="flex items-center gap-3 mt-2 ml-7">
+                  <span className="flex-1 text-xs text-slate-500 tabular-nums">{takaranTeks(persenKapur)}</span>
+                  <span className="w-40 shrink-0">
+                    <IsianHarga label="Harga kapur" labelTersembunyi value={hargaKapur} onChange={setHargaKapur} placeholder="1.500" />
+                  </span>
                 </div>
               )}
             </div>
           )}
         </div>
-
-        {/* Ringkasan Estimasi Biaya */}
-        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-sm">
-          <span className="text-slate-600 font-medium">Estimasi Biaya Campuran:</span>
-          <span className="font-bold text-emerald-800 text-base tabular-nums">
-            {rupiah(estimasiBiayaPerKg)} / kg
-          </span>
-        </div>
+        {metode === "preset" && (
+          <p className="mt-2 text-sm text-slate-700 text-right">
+            Perkiraan biaya <span className="font-semibold text-slate-900 tabular-nums">{rupiah(estimasiBiayaPerKg)}/kg</span>
+          </p>
+        )}
       </div>
 
-      {/* Tombol Eksekusi Hitung */}
-      <Tombol onClick={prosesHitung}>
-        Hitung Formula ({batchKg} kg)
-      </Tombol>
+      <Tombol onClick={prosesHitung}>Hitung formula ({angka(batchKg, 1)} kg)</Tombol>
     </div>
   );
 }

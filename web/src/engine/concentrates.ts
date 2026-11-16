@@ -553,9 +553,12 @@ export function hitungFormulaDariRasio(
       masalah.push({
         kode: `${e.param}_LANGGAR`,
         pesan: e.pesan,
-        saran: `Tambahkan porsi ${
-          e.param === "PK" || e.param === "Lisin" || e.param === "Methionin" ? "Konsentrat" : "Jagung"
-        } untuk menutupi kekurangan ${e.nama}.`,
+        saran:
+          e.status === "tidak" && e.batasMaks != null && (e.nilaiFormula ?? 0) > e.batasMaks
+            ? `Kurangi bahan yang paling banyak mengandung ${e.nama.toLowerCase()}, atau pilih takaran lain.`
+            : `Tambah porsi ${
+                e.param === "PK" || e.param === "Lisin" || e.param === "Methionin" ? "konsentrat" : "jagung"
+              }, atau pilih takaran lain.`,
       });
     }
   }
@@ -566,7 +569,7 @@ export function hitungFormulaDariRasio(
     ringkasan: {
       kelayakanFormula: status,
       pemenuhanNutrisi: pemenuhan,
-      kelayakanPraktis: "Formula campuran konsentrat pabrikan standar peternak lapangan.",
+      kelayakanPraktis: "Angka gizi konsentrat adalah perkiraan; bila ada, pakai angka dari label karung konsentrat Anda.",
     },
     biayaPerKg,
     komposisi,
@@ -574,8 +577,8 @@ export function hitungFormulaDariRasio(
     evaluasi,
     masalah,
     catatan: [
-      "Mode Konsentrat: Formula dihitung berdasarkan rasio pencampuran bahan pabrikan.",
-      "Pastikan konsentrat diaduk rata dengan jagung giling dan dedak halus.",
+      "Takaran mengikuti pola yang dipilih, bukan hasil hitungan termurah.",
+      "Aduk konsentrat, jagung giling, dan dedak sampai rata.",
     ],
   };
 }

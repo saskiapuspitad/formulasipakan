@@ -37,6 +37,7 @@ export function validasiInput(m: Master, req: FormulasiRequest): HasilValidasi {
 
   let sumMin = 0;
   let sumMaks = 0;
+  const bahanNol: string[] = [];
   for (const it of req.items) {
     const b = m.bahan(it.bahanId);
     if (!b) {
@@ -71,9 +72,7 @@ export function validasiInput(m: Master, req: FormulasiRequest): HasilValidasi {
         catatan.push(`Data ${p} untuk ${b.nama} belum tersedia.`);
       }
     }
-    if (b.param_bernilai_0_cek && b.param_bernilai_0_cek.length) {
-      catatan.push(`Perhatikan: nilai 0 pada ${b.nama} (${b.param_bernilai_0_cek.join(", ")}) mungkin berarti data kosong, bukan benar-benar nol.`);
-    }
+    if (b.param_bernilai_0_cek && b.param_bernilai_0_cek.length) bahanNol.push(b.nama.toLowerCase());
     if (b.status_verifikasi !== "TERVERIFIKASI") {
       // catatan verifikasi ringkas (tidak spam): kumpulkan satu kali di bawah
     }
@@ -83,20 +82,25 @@ export function validasiInput(m: Master, req: FormulasiRequest): HasilValidasi {
     if (sumMin > 100 + 1e-9) {
       masalah.push({
         kode: "TOTAL_MIN_LEBIH_100",
-        pesan: `Jumlah batas minimum semua bahan (${sumMin.toFixed(1)}%) melebihi 100%. Mustahil mencapai total 100%.`,
+        pesan: `Jumlah batas paling sedikit semua bahan (${sumMin.toFixed(1)}%) lebih dari 100%.`,
         saran: "Turunkan sebagian batas minimum bahan.",
       });
     }
     if (sumMaks < 100 - 1e-9) {
       masalah.push({
         kode: "TOTAL_MAKS_KURANG_100",
-        pesan: `Jumlah batas maksimum semua bahan (${sumMaks.toFixed(1)}%) kurang dari 100%. Tidak cukup untuk 100%.`,
+        pesan: `Jumlah batas paling banyak semua bahan (${sumMaks.toFixed(1)}%) kurang dari 100%.`,
         saran: "Naikkan batas maksimum bahan atau tambah bahan.",
       });
     }
   }
 
-  catatan.push("Nilai gizi bahan berstatus perlu verifikasi; kualitas aktual, kontaminasi, toksin, penyimpanan, dan saran ahli nutrisi tetap perlu dipertimbangkan.");
+  
+
+  if (bahanNol.length) {
+    const daftar = bahanNol.length > 1 ? `${bahanNol.slice(0, -1).join(", ")} dan ${bahanNol[bahanNol.length - 1]}` : bahanNol[0];
+    catatan.push(`Nilai 0 di tabel untuk ${daftar} bisa berarti datanya belum ada.`);
+  }
 
   // Data komposisi kurang -> BELUM_DINILAI (blokir klaim layak), tapi bukan "masalah fatal input".
   const adaMasalahFatal = masalah.length > 0;

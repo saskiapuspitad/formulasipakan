@@ -26,12 +26,10 @@ export function TargetGizi({ periode, parameter }: { periode: Periode; parameter
   const [buka, setBuka] = useState(false);
   const param = (id: ParamId) => parameter.find((p) => p.id === id);
   const sumber = periode.sumber?.trim() || SUMBER_BAWAAN;
-  const ringkas = (["EM", "PK"] as ParamId[])
-    .map((id) => `${id} ${teksTarget(periode.kebutuhan[id], param(id)?.satuan ?? "")}`)
-    .join(" · ");
+  const ringkas = `Energi ${teksTarget(periode.kebutuhan.EM, "kkal/kg")}, protein ${teksTarget(periode.kebutuhan.PK, "%")}`;
 
   return (
-    <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3.5 shadow-2xs">
+    <div className="rounded-lg border border-slate-200 bg-white px-3.5 py-3">
       <button
         type="button"
         onClick={() => setBuka((b) => !b)}
@@ -39,26 +37,24 @@ export function TargetGizi({ periode, parameter }: { periode: Periode; parameter
         className="w-full flex items-start justify-between gap-3 text-left cursor-pointer"
       >
         <div className="min-w-0">
-          <p className="text-xs font-bold text-emerald-900">Target gizi fase ini</p>
-          <p className="text-[11px] text-emerald-900/80 mt-0.5 tabular-nums">{ringkas}</p>
+          <p className="text-sm font-medium text-slate-800">Target gizi</p>
+          <p className="text-xs text-slate-600 mt-0.5 tabular-nums">{ringkas}</p>
         </div>
-        <span className="shrink-0 text-[11px] font-semibold text-emerald-800 underline underline-offset-2">
-          {buka ? "Tutup" : "Lihat 8 target"}
-        </span>
+        <span className="shrink-0 text-sm font-medium text-emerald-800">{buka ? "Tutup" : "Lihat semua"}</span>
       </button>
 
       {buka && (
-        <div className="mt-3 pt-3 border-t border-emerald-200/70">
-          <table className="w-full text-xs">
+        <div className="mt-3 pt-3 border-t border-slate-100">
+          <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-slate-500">
-                <th className="font-semibold pb-1.5">Nutrisi</th>
-                <th className="font-semibold pb-1.5 text-right">Target</th>
+                <th className="font-medium pb-1.5">Nutrisi</th>
+                <th className="font-medium pb-1.5 text-right">Target</th>
               </tr>
             </thead>
             <tbody>
               {URUTAN.map((id) => (
-                <tr key={id} className="border-t border-emerald-100">
+                <tr key={id} className="border-t border-slate-100">
                   <td className="py-1.5 text-slate-700">{param(id)?.nama ?? id}</td>
                   <td className="py-1.5 text-right font-semibold text-slate-900 tabular-nums whitespace-nowrap">
                     {teksTarget(periode.kebutuhan[id], param(id)?.satuan ?? "")}
@@ -67,12 +63,12 @@ export function TargetGizi({ periode, parameter }: { periode: Periode; parameter
               ))}
             </tbody>
           </table>
-          <p className="text-[11px] text-slate-500 mt-2 leading-relaxed">
-            ≥ minimum · ≤ maksimum · a - b rentang. Perhitungan menambah margin keamanan ±1% dari batas; bila
-            bahan tidak memungkinkan, margin dilepas.
+          <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+            ≥ paling sedikit, ≤ paling banyak, a - b kisaran. Saat menghitung, aplikasi memberi cadangan 1% dari
+            batas agar hasil tetap aman setelah dibulatkan.
           </p>
-          <p className="text-[11px] text-slate-600 mt-1">
-            Sumber acuan: <span className="font-semibold">{sumber}</span>
+          <p className="text-xs text-slate-500 mt-1">
+            Sumber: {sumber}
           </p>
         </div>
       )}

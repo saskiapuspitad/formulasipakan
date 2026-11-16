@@ -30,7 +30,7 @@ const KATEGORI = ["energi", "protein", "mineral", "lain"];
 
 const kelasInput =
   "w-full px-2.5 py-1.5 text-sm rounded-lg border border-slate-200 focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 outline-none text-slate-800 bg-white tabular-nums";
-const kartu = "rounded-xl border border-slate-200 bg-white p-4";
+const kartu = "rounded-lg border border-slate-200 bg-white p-4";
 const hariIni = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -66,7 +66,7 @@ export function AdminScreen(p: { online: boolean; penggunaId: string; onKembali:
   };
 
   return (
-    <Seksi judul="Halaman Admin Sistem Formulasi Pakan" sub="Kelola data yang dipakai semua peternak" kembali={p.onKembali}>
+    <Seksi judul="Admin" sub="Data yang dipakai semua peternak" kembali={p.onKembali}>
       {!p.online && <BannerPeringatan tipe="warning" pesan="Halaman admin memerlukan internet. Sambungkan lalu buka lagi." />}
       {galat && <BannerPeringatan tipe="danger" pesan={galat} onTutup={() => setGalat(null)} />}
 
@@ -129,7 +129,7 @@ function TabStatistik() {
   const kartuAngka: [string, string | number, string?][] = [
     ["Pengguna terdaftar", r.pengguna, `${r.pengguna_baru_30h} baru (30 hari)`],
     ["Pengguna aktif", r.pengguna_aktif_30h, "menghitung dalam 30 hari"],
-    ["Perhitungan", r.hitung_30h, `30 hari · total ${r.hitung_total}`],
+    ["Perhitungan", r.hitung_30h, `30 hari terakhir, total ${r.hitung_total}`],
     ["Formula layak", persenLayak == null ? "-" : `${persenLayak}%`, "dari perhitungan 30 hari"],
     ["Formula tersimpan", r.formula_tersimpan, `${r.bahan_buatan} bahan buatan peternak`],
   ];
@@ -138,7 +138,7 @@ function TabStatistik() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
         {kartuAngka.map(([label, nilai, ket]) => (
           <div key={label} className={kartu}>
-            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">{label}</p>
+            <p className="text-xs text-slate-500">{label}</p>
             <p className="text-2xl font-bold text-slate-900 tabular-nums mt-0.5">{nilai}</p>
             {ket && <p className="text-[11px] text-slate-500 mt-0.5">{ket}</p>}
           </div>
@@ -202,8 +202,8 @@ function TabStatistik() {
               {s.terbaru.map((a, i) => (
                 <li key={i} className="py-1.5 flex justify-between gap-2 text-xs">
                   <span className="min-w-0 truncate text-slate-700">
-                    <span className="font-semibold">{a.pengguna ?? "-"}</span> · {a.ternak ?? "-"}
-                    <span className="text-slate-400"> · {new Date(a.dihitung_pada).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
+                    <span className="font-semibold">{a.pengguna ?? "-"}</span>, {a.ternak ?? "-"}
+                    <span className="text-slate-500"> {new Date(a.dihitung_pada).toLocaleString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
                   </span>
                   <span className={`shrink-0 font-semibold ${a.status === "LAYAK" ? "text-emerald-700" : "text-rose-700"}`}>
                     {a.status === "LAYAK" && a.biaya_per_kg != null ? `${rupiah(a.biaya_per_kg)}/kg` : a.status === "LAYAK" ? "Layak" : "Tidak layak"}
@@ -298,7 +298,7 @@ function TabHarga({ master, onTersimpan }: { master: MasterData; onTersimpan: ()
                 <tr className={`border-t border-slate-100 ${b.aktif === false ? "opacity-50" : ""}`}>
                   <td className="px-3 py-2">
                     <span className="font-medium text-slate-800">{b.nama}</span>
-                    <span className="block text-[11px] text-slate-500 capitalize">{b.kategori}{b.aktif === false ? " · nonaktif" : ""}</span>
+                    <span className="block text-[11px] text-slate-500 capitalize">{b.kategori}{b.aktif === false ? ", nonaktif" : ""}</span>
                   </td>
                   <td className="px-3 py-2 text-right tabular-nums">{b.harga_acuan_rp_per_kg != null ? rupiah(b.harga_acuan_rp_per_kg) : "-"}</td>
                   <td className={`px-3 py-2 text-xs ${b.harga_acuan_berlaku_sejak?.startsWith("2016") ? "text-amber-700 font-semibold" : "text-slate-600"}`}>
@@ -329,9 +329,9 @@ function TabHarga({ master, onTersimpan }: { master: MasterData; onTersimpan: ()
                         <ul className="text-xs text-slate-600 space-y-0.5">
                           {riwayat.map((h, i) => (
                             <li key={i}>
-                              <span className="font-semibold tabular-nums">{rupiah(h.harga_per_kg)}</span> · berlaku {tgl(h.berlaku_sejak)}
-                              {h.keterangan ? ` · ${h.keterangan}` : ""}
-                              {h.oleh ? ` · oleh ${h.oleh}` : ""}
+                              <span className="font-semibold tabular-nums">{rupiah(h.harga_per_kg)}</span>, berlaku {tgl(h.berlaku_sejak)}
+                              {h.keterangan ? `, ${h.keterangan}` : ""}
+                              {h.oleh ? `, oleh ${h.oleh}` : ""}
                             </li>
                           ))}
                         </ul>
@@ -346,7 +346,7 @@ function TabHarga({ master, onTersimpan }: { master: MasterData; onTersimpan: ()
       </div>
 
       <Pesan p={pesan} />
-      <div className="sticky bottom-3 flex items-center justify-between gap-3 bg-white/95 backdrop-blur border border-slate-200 rounded-xl p-3 shadow-sm">
+      <div className="sticky bottom-3 flex items-center justify-between gap-3 bg-white border border-slate-200 rounded-lg p-3 shadow-md">
         <span className="text-xs text-slate-600">{berubah.length ? `${berubah.length} harga akan diperbarui` : "Isi kolom harga baru untuk bahan yang ingin diubah"}</span>
         <Tombol ukuran="kecil" onClick={simpan} disabled={!berubah.length || proses || !berlaku}>
           {proses ? "Menyimpan…" : "Simpan harga"}
@@ -534,7 +534,7 @@ function TabBahan({ master, onTersimpan }: { master: MasterData; onTersimpan: ()
               <tr key={b.id} className={`border-t border-slate-100 ${b.aktif === false ? "opacity-50" : ""}`}>
                 <td className="px-3 py-2">
                   <span className="font-medium text-slate-800 text-sm">{b.nama}</span>
-                  <span className="block text-[11px] text-slate-500 capitalize">{b.kategori}{b.aktif === false ? " · disembunyikan" : ""}</span>
+                  <span className="block text-[11px] text-slate-500 capitalize">{b.kategori}{b.aktif === false ? ", disembunyikan" : ""}</span>
                 </td>
                 {PARAM.map((k) => (
                   <td key={k} className={`text-right px-2 py-2 tabular-nums ${b.komposisi[k] == null ? "text-slate-300" : ""}`}>
@@ -810,7 +810,7 @@ function TabPengguna({ penggunaId }: { penggunaId: string }) {
                 <tr key={p.id} className={`border-t border-slate-100 ${p.aktif ? "" : "opacity-60"}`}>
                   <td className="px-3 py-2">
                     <span className="font-medium text-slate-800 text-sm">{p.nama}{saya ? " (Anda)" : ""}</span>
-                    <span className="block text-[11px] text-slate-500">{p.email}{p.aktif ? "" : " · nonaktif"}</span>
+                    <span className="block text-[11px] text-slate-500">{p.email}{p.aktif ? "" : ", nonaktif"}</span>
                   </td>
                   <td className="px-3 py-2">
                     <select
