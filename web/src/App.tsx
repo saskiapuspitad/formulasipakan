@@ -279,6 +279,24 @@ export default function App() {
     [master, periodeId]
   );
 
+  // Langkah yang datanya sudah tidak ada (mis. tombol kembali setelah "Selesai" atau setelah formula
+  // dihapus) tidak boleh menampilkan layar kosong: arahkan ke layar awal / daftar tersimpan.
+  const langkahPengganti: Langkah | null = !master
+    ? null
+    : (langkah === "bahan" && !periode) || (langkah === "periode" && !ternak) || (langkah === "hasil" && !hasil && !hitung)
+      ? "ternak"
+      : langkah === "banding" && !(formulas.some((f) => f.id === pilihBanding[0]) && formulas.some((f) => f.id === pilihBanding[1]))
+        ? "tersimpan"
+        : langkah === "admin" && user?.peran !== "admin"
+          ? "ternak"
+          : null;
+  useEffect(() => {
+    if (!langkahPengganti) return;
+    window.history.replaceState({ langkah: langkahPengganti }, "");
+    setLangkah(langkahPengganti);
+  }, [langkahPengganti]);
+  const tampil: Langkah = langkahPengganti ?? langkah;
+
   if (!user) {
     return (
       <>
@@ -669,7 +687,7 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-full mx-auto ${langkah === "admin" ? "max-w-5xl" : "max-w-md"} px-4 pb-28 text-slate-800`}
+      className={`min-h-full mx-auto ${tampil === "admin" ? "max-w-5xl" : "max-w-md"} px-4 pb-28 text-slate-800`}
       style={{ paddingTop: "env(safe-area-inset-top, 12px)" }}
     >
       {/* KEPALA APLIKASI */}
@@ -734,7 +752,7 @@ export default function App() {
         </nav>
       </header>
 
-      {sumberMaster === "bawaan" && langkah !== "admin" && (
+      {sumberMaster === "bawaan" && tampil !== "admin" && (
         <div className="mb-4 print:hidden">
           <BannerPeringatan
             tipe="info"
@@ -751,7 +769,7 @@ export default function App() {
       )}
 
       {/* 1. PILIH TERNAK */}
-      {langkah === "ternak" && (
+      {tampil === "ternak" && (
         <Seksi judul="Pilih ternak" sub="Formula disusun per jenis ternak dan fase pemeliharaan.">
           <Daftar>
             {master.data.ternak.map((t) => {
@@ -779,7 +797,7 @@ export default function App() {
       )}
 
       {/* 2. PILIH FASE */}
-      {langkah === "periode" && (
+      {tampil === "periode" && (
         <Seksi judul={ternak} sub="Pilih fase pemeliharaan" kembali={mundur}>
           <Daftar>
             {daftarPeriode.map((p) => {
@@ -810,7 +828,7 @@ export default function App() {
       )}
 
       {/* 3. LAYAR PEMILIHAN BAHAN & OPTIMASI */}
-      {langkah === "bahan" && periode && (
+      {tampil === "bahan" && periode && (
         <BahanScreen
           periode={periode}
           batch={batch}
@@ -834,7 +852,7 @@ export default function App() {
       )}
 
       {/* 4. LAYAR HASIL & LEMBAR TIMBANGAN */}
-      {langkah === "hasil" && (
+      {tampil === "hasil" && (
         <Seksi judul="Hasil formula" sub={periode ? `${ternak}, ${namaFase(periode.nama, periode.jenis_ternak)}` : ternak || undefined} kembali={mundur}>
           {hitung && (
             <div className="py-12 text-center space-y-3" role="status">
@@ -864,7 +882,7 @@ export default function App() {
       )}
 
       {/* 5. FORMULA TERSIMPAN */}
-      {langkah === "tersimpan" && (
+      {tampil === "tersimpan" && (
         <Seksi judul="Formula tersimpan" sub={formulas.length > 1 ? "Centang dua formula untuk membandingkan." : undefined} kembali={mundur}>
           {formulas.length === 0 ? (
             <div className="rounded-lg border border-dashed border-slate-300 bg-white px-4 py-8 text-center">
@@ -940,14 +958,14 @@ export default function App() {
       )}
 
       {/* 6. LAYAR BANDINGKAN 2 FORMULA */}
-      {langkah === "banding" && bandingA && bandingB && (
+      {tampil === "banding" && bandingA && bandingB && (
         <Seksi judul="Bandingkan formula" kembali={mundur}>
           <BandingView a={bandingA} b={bandingB} params={master.parameter} />
         </Seksi>
       )}
 
       {/* KEBUTUHAN NUTRISI (Kebutuhan Nutrisi Ternak Unggas 2026) */}
-      {langkah === "kebutuhan" && (
+      {tampil === "kebutuhan" && (
         <KebutuhanScreen
           ternakAwal={ternakKebutuhan}
           cariPeriodeId={(nama) => {
@@ -965,7 +983,7 @@ export default function App() {
       )}
 
       {/* 7. AKUN & SINKRONISASI */}
-      {langkah === "akun" && (
+      {tampil === "akun" && (
         <AkunScreen
           pengguna={user}
           online={isOnline}
@@ -986,7 +1004,7 @@ export default function App() {
       )}
 
       {/* 8. HALAMAN ADMIN */}
-      {langkah === "admin" && user.peran === "admin" && (
+      {tampil === "admin" && user.peran === "admin" && (
         <AdminScreen online={isOnline} penggunaId={user.id} onKembali={mundur} onMasterBerubah={muatDataMaster} />
       )}
 
@@ -1021,7 +1039,7 @@ export default function App() {
       )}
 
       {/* BOTTOM ACTIONS BAR */}
-      {langkah === "hasil" && !hitung && hasil && (
+      {tampil === "hasil" && !hitung && hasil && (
         <BarBawah>
           {dariTersimpan ? (
             <div className="grid grid-cols-2 gap-2 [&>button]:text-sm">
@@ -1062,7 +1080,7 @@ export default function App() {
         </BarBawah>
       )}
 
-      {langkah === "tersimpan" && pilihBanding.length === 2 && (
+      {tampil === "tersimpan" && pilihBanding.length === 2 && (
         <BarBawah>
           <Tombol onClick={() => bukaLangkah("banding")}>
             Bandingkan 2 formula
