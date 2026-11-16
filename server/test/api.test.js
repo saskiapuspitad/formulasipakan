@@ -225,3 +225,31 @@ test("ganti kata sandi membuat sesi lama di perangkat lain gugur", async () => {
   assert.equal((await hpA.get("/api/auth/saya")).status, 200); // perangkat yang mengganti tetap masuk
   assert.equal((await hpB.get("/api/auth/saya")).status, 401); // perangkat lain keluar
 });
+
+test("migrasi 002: koreksi komposisi jagung & dedak pada database lama, tanpa menimpa ubahan admin", async () => {
+  const { jalankanMigrasi } = await import("../src/migrasi.js");
+  const kompos = async (id) => (await s.pool.query("SELECT data FROM bahan WHERE id = $1", [id])).rows[0].data;
+  const versi = async () => (await s.pool.query("SELECT (nilai->>'n')::int AS n FROM master_info WHERE kunci = 'versi'")).rows[0].n;
+
+  // Database baru: data awal sudah memakai nilai terkoreksi
+  assert.equal((await kompos("jagung_kuning")).komposisi.P, 0.27);
+  assert.equal((await kompos("dedak_halus")).komposisi.LK, 13);
+
+  // Tiru database lama di VPS: nilai dataset lama, dan admin sudah mengganti P dedak menjadi 0,9
+  await s.pool.query(`UPDATE bahan SET data = jsonb_set(jsonb_set(data - 'catatan_komposisi', '{komposisi,SK}', '4.76'), '{komposisi,P}', '0.1') WHERE id = 'jagung_kuning'`);
+  await s.pool.query(`UPDATE bahan SET data = jsonb_set(jsonb_set(data - 'catatan_komposisi', '{komposisi,LK}', '8'), '{komposisi,P}', '0.9') WHERE id = 'dedak_halus'`);
+  await s.pool.query("DELETE FROM schema_migrasi WHERE nama = '002_koreksi_jagung_dedak.sql'");
+  const v0 = await versi();
+
+  await jalankanMigrasi(s.pool, () => {});
+
+  const j = await kompos("jagung_kuning");
+  assert.equal(j.komposisi.SK, 2.1);
+  assert.equal(j.komposisi.P, 0.27);
+  assert.match(j.catatan_komposisi, /Feedipedia/);
+  const d = await kompos("dedak_halus");
+  assert.equal(d.komposisi.LK, 13);
+  assert.equal(d.komposisi.P, 0.9); // ubahan admin dibiarkan
+  assert.equal(d.catatan_komposisi, undefined); // catatan hanya bila semua angka koreksi terpasang
+  assert.equal(await versi(), v0 + 1); // perangkat akan mengunduh ulang data master
+});

@@ -1415,10 +1415,10 @@
       "komposisi": {
         "EM": 1630,
         "PK": 8,
-        "LK": 8,
+        "LK": 13,
         "SK": 12,
         "Ca": 0.12,
-        "P": 0.21,
+        "P": 1.24,
         "Lisin": 0.77,
         "Methionin": 0.29
       },
@@ -1433,7 +1433,8 @@
         "Bibit_Breeder": 25.0
       },
       "status_verifikasi": "PERLU_VERIFIKASI",
-      "param_bernilai_0_cek": []
+      "param_bernilai_0_cek": [],
+      "catatan_komposisi": "Dikoreksi 16-11-2026: LK 8 -> 13 dan P 0,21 -> 1,24 (P TOTAL; angka lama setara P non-fitat/tersedia). Sumber: Feedipedia (INRAE-CIRAD-AFZ-FAO) 'Rice bran, fibre 11-20%': LK 14,4% BK, P 13,8 g/kg BK, BK 90,2% -> dikonversi ke as-fed."
     },
     {
       "id": "dedak_jagung",
@@ -1496,9 +1497,9 @@
         "EM": 3370,
         "PK": 8.54,
         "LK": 2.61,
-        "SK": 4.76,
+        "SK": 2.1,
         "Ca": 0.02,
-        "P": 0.1,
+        "P": 0.27,
         "Lisin": 0.2,
         "Methionin": 0.18
       },
@@ -1513,7 +1514,8 @@
         "Bibit_Breeder": 60.0
       },
       "status_verifikasi": "PERLU_VERIFIKASI",
-      "param_bernilai_0_cek": []
+      "param_bernilai_0_cek": [],
+      "catatan_komposisi": "Dikoreksi 16-11-2026: SK 4,76 -> 2,1 dan P 0,10 -> 0,27 (P TOTAL; angka lama setara P tersedia). Sumber: Feedipedia (INRAE-CIRAD-AFZ-FAO) 'Maize grain, yellow': SK 2,4% BK, P 3,2 g/kg BK, BK 85,8% -> dikonversi ke as-fed."
     },
     {
       "id": "menir",
